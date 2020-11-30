@@ -3,6 +3,12 @@ const app = express();
 let http = require('http').createServer(app);
 let io = require('socket.io')(http);
 
+let SerialPortNumber = "COM13";
+// let SerialPortNumber = "/dev/ttyUSB0";
+
+let baudRate = 9600;
+// let baudRate = 57600;
+
 app.use(express.static('public'));
 
 
@@ -24,10 +30,10 @@ io.on('connection', (socket) => {
             if (err) {
                 return console.log('Error on write: ', err.message)
             }
-            // console.log('message written')
+            console.log('message written')
         })
 
-        // console.log('message: ' + msg);
+        console.log('message: ' + msg);
         io.emit('chat message', msg);
     });
 });
@@ -39,15 +45,12 @@ const SerialPort = require('serialport');
 const Readline = SerialPort.parsers.Readline;
 // const WriteLine = SerialPort.write('333');
 
-const port = new SerialPort('COM3', {
-// const port = new SerialPort('/dev/ttyUSB0', {
-  	baudRate: 9600
-        // baudRate: 57600
+const port = new SerialPort(SerialPortNumber, {
+  	baudRate: baudRate
     },
     function (err) {
         if (err) {
             return console.log('Error: ', err.message);
-            // return true;
         }
     });
 
@@ -55,7 +58,7 @@ const parser = new Readline();
 
 port.pipe(parser);
 
-// parser.on('data', console.log);
+parser.on('data', console.log);
 
 
 

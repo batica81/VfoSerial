@@ -34,6 +34,11 @@
 <script>
     $(function () {
 
+        // create web audio api context
+        var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        var oscillator;
+
         let currentFrequency = 0;
         let setFrequencyButton = document.querySelector('.setFrequencyButton');
         let currentFrequencyInput = document.querySelector('.currentFrequencyInput');
@@ -71,11 +76,30 @@
         $('.cwArea').on("mousedown", function () {
             socket.emit('chat message', currentFrequency);
 
+            // create Oscillator node
+            if  (currentFrequency < 96000) {
+                oscillator = audioCtx.createOscillator();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(currentFrequency, audioCtx.currentTime); // value in hertz
+                oscillator.connect(audioCtx.destination);
+                oscillator.start();
+            } else {
+                console.log('Sidetone only up to 96khz');
+            }
+
         }).on("mouseup", function () {
             socket.emit('chat message', 0);
             // console.log("RELEASED");
+            if (oscillator){
+                oscillator.stop();
+            }
 
         })
+
+
+
+
+
 
     })
 
