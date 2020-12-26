@@ -6,7 +6,7 @@ let io = require('socket.io')(http);
 let SerialPortNumber = "COM13";
 // let SerialPortNumber = "/dev/ttyUSB0";
 
-let baudRate = 9600;
+let baudRate = 115200;
 // let baudRate = 57600;
 
 app.use(express.static('public'));

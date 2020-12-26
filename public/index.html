@@ -8,10 +8,18 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="Morse.js"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/autonumeric@4.5.4"></script>
 </head>
 <body>
 
 <div class="cwArea">CW</div>
+
+<label class="container-checkbox" for="continuousTX"> Continuous TX
+    <input type="checkbox" id="continuousTX" name="continuousTX" value="1">
+    <span class="checkmark"></span>
+
+</label><br>
+
 <div class="setFrequencyWrapper">
     <input class="currentFrequencyInput" type="text" value="0" placeholder="0">
     <button class="setFrequencyButton">Set Frequency</button>
@@ -30,80 +38,37 @@
 
 <button class="stopButon">STOP</button>
 
+<button class="timeButton">Sync Time</button>
+
+
+
+<p class="powerSelector">Select TX power:</p>
+
+<div>
+    <input class="powerInput" type="radio" id="2ma" name="power" value="2"
+           checked>
+    <label class="powerLabel" for="2ma">2ma</label>
+</div>
+
+<div>
+    <input class="powerInput"  type="radio" id="4ma" name="power" value="4">
+    <label class="powerLabel" for="4ma">4ma</label>
+</div>
+
+<div>
+    <input class="powerInput"  type="radio" id="6ma" name="power" value="6">
+    <label class="powerLabel" for="6ma">6ma</label>
+</div>
+
+<div>
+    <input class="powerInput"  type="radio" id="8ma" name="power" value="8">
+    <label class="powerLabel" for="8ma">8ma</label>
+</div>
+
+
+
 <ul id="messages"></ul>
 
-<script>
-    $(function () {
-
-        // create web audio api context
-        var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        var oscillator;
-
-        let currentFrequency = 0;
-        let setFrequencyButton = document.querySelector('.setFrequencyButton');
-        let currentFrequencyInput = document.querySelector('.currentFrequencyInput');
-
-        setFrequencyButton.addEventListener("click", function (){
-            if (MorseJs.empty){
-                morseInit();
-            }
-            currentFrequency = currentFrequencyInput.value;
-            console.log(currentFrequency);
-            // MorseJs.Play("cq cq de n5jlc k", 20, 500);
-        })
-
-        var socket = io();
-        $('form').submit(function(e) {
-            e.preventDefault(); // prevents page reloading
-            socket.emit('chat message', $('#m').val());
-            $('#m').val('');
-            return false;
-        });
-        // socket.on('chat message', function(msg){
-        //     $('#messages').append($('<li>').text(msg));
-        // });
-
-        $('.freqSlider').on("input", function () {
-            socket.emit('chat message', this.value);
-            // console.log(this.value);
-        })
-
-        $('.stopButon').on("click", function () {
-            socket.emit('chat message', 0);
-            console.log("STOP sent");
-        })
-
-        $('.cwArea').on("mousedown", function () {
-            socket.emit('chat message', currentFrequency);
-
-            // create Oscillator node
-            if  (currentFrequency < 96000) {
-                oscillator = audioCtx.createOscillator();
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(currentFrequency, audioCtx.currentTime); // value in hertz
-                oscillator.connect(audioCtx.destination);
-                oscillator.start();
-            } else {
-                console.log('Sidetone only up to 96khz');
-            }
-
-        }).on("mouseup", function () {
-            socket.emit('chat message', 0);
-            // console.log("RELEASED");
-            if (oscillator){
-                oscillator.stop();
-            }
-
-        })
-
-
-
-
-
-
-    })
-
-</script>
+<script src="app.js"></script>
 </body>
 </html>
