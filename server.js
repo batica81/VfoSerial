@@ -30,10 +30,10 @@ io.on('connection', (socket) => {
             if (err) {
                 return console.log('Error on write: ', err.message)
             }
-            console.log('message written')
+            // console.log('message written')
         })
 
-        console.log('message: ' + msg);
+        // console.log('message: ' + msg);
         io.emit('chat message', msg);
     });
 });
@@ -58,7 +58,12 @@ const parser = new Readline();
 
 port.pipe(parser);
 
-parser.on('data', console.log);
+// parser.on('data', console.log);
+parser.on('data', function (data){
+
+    io.emit('chat message', data);
+    // console.log(data)
+});
 
 
 

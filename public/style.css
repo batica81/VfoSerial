@@ -37,6 +37,13 @@ form button {
     list-style-type: none;
     margin: 0;
     padding: 0;
+    max-height: 200px;
+    overflow: auto;
+}
+
+#display {
+    background: #111;
+    padding: 10px;
 }
 
 #messages li {
@@ -71,6 +78,10 @@ form button {
     color: #68cfe2;
 }
 
+.center{
+    text-align: center;
+}
+
 .setFrequencyButton {
     font-size: 37px;
     font-weight: 700;
@@ -79,8 +90,8 @@ form button {
     color: #42f3a6;
 }
 
-.currentFrequencyInput {
-    font-size: larger;
+.currentFrequencyInput, .lowFreqLimit, .highFreqLimit, .sweepStep {
+    font-size: 0.5em;
     max-width: 300px;
     padding: 5px;
 }
@@ -242,4 +253,10 @@ input.powerInput {
     height: 8px;
     border-radius: 50%;
     background: white;
+}
+
+.sectionWrapper {
+    border: 1px solid #000;
+    margin: 10px;
+    padding: 10px;
 }

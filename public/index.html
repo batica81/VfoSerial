@@ -7,67 +7,105 @@
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico"/>
     <script src="/socket.io/socket.io.js"></script>
     <script src="Morse.js"></script>
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/autonumeric@4.5.4"></script>
+    <script src="jquery-3.4.1.min.js"></script>
+<!--    <script src="https://cdn.jsdelivr.net/npm/autonumeric@4.5.4"></script>-->
+    <script src="autonumeric.js"></script>
+    <script type="text/javascript" src="segment-display.js"></script>
 </head>
 <body>
 
-<div class="cwArea">CW</div>
+<div class="currentFreqWrapper sectionWrapper">
+    <div class="currentFreq center">0</div>
+    <canvas id="display" width="260" height="140">
+        Your browser is unfortunately not supported.
+    </canvas>
+</div>
 
-<label class="container-checkbox" for="continuousTX"> Continuous TX
-    <input type="checkbox" id="continuousTX" name="continuousTX" value="1">
-    <span class="checkmark"></span>
+<div class="freqWrapper sectionWrapper">
+    <div class="cwArea">CW</div>
 
-</label><br>
+    <label class="container-checkbox" for="continuousTX"> Continuous TX
+        <input type="checkbox" id="continuousTX" name="continuousTX" value="1">
+        <span class="checkmark"></span>
+    </label>
 
-<div class="setFrequencyWrapper">
-    <input class="currentFrequencyInput" type="text" value="0" placeholder="0">
-    <button class="setFrequencyButton">Set Frequency</button>
+
+    <button class="stopButon">STOP</button>
+
+    <div class="setFrequencyWrapper">
+        <input class="currentFrequencyInput" type="text" value="0" placeholder="0">
+        <button class="setFrequencyButton">Set Frequency</button>
+    </div>
+
+</div>
+
+<!--<div class="messageWrapper sectionWrapper">-->
+<!--    <form action="">-->
+<!--        <input id="m" autocomplete="off" /><button>Send</button>-->
+<!--    </form>-->
+<!--</div> -->
+
+<div class="limitsWrapper sectionWrapper">
+    <label for="lowFreqLimit">Start frequency</label>
+    <input class="lowFreqLimit" name="lowFreqLimit" id="lowFreqLimit" type="text" value="6000000" placeholder="6000000">
+
+    <br>
+    <label for="highFreqLimit">Stop frequency</label>
+    <input class="highFreqLimit" name="highFreqLimit" id="highFreqLimit" type="text" value="7000000" placeholder="7000000">
+
+    <br>
+    <label for="sweepStep">Step</label>
+    <input class="sweepStep" name="sweepStep" id="sweepStep" type="text" value="1000" placeholder="1000">
+
+
+    <div class="sliderWrapper">
+        <label for="freqSlider">Sweep frequencies</label>
+        <input type="range" value="0" min="26965000" max="27500000" step="10000" class="freqSlider" name="freqSlider" id="freqSlider">
+    </div>
 </div>
 
 
-<form action="">
-    <input id="m" autocomplete="off" /><button>Send</button>
-</form>
 
-<div class="sliderWrapper">
-    <label for="freqSlider">Enter frequency</label>
-    <!--<input type="range" value="0" min="8000" max="150000000" step="10" class="freqSlider" name="freqSlider" id="freqSlider">-->
-    <input type="range" value="0" min="5145000" max="5165000" step="100" class="freqSlider" name="freqSlider" id="freqSlider">
+
+<div class="utilWrapper sectionWrapper">
+    <button class="timeButton">Sync Time</button>
+
+    <div class="powerWrapper">
+        <p class="powerSelector">Select TX power:</p>
+
+        <div>
+            <input class="powerInput" type="radio" id="2ma" name="power" value="2"
+                   checked>
+            <label class="powerLabel" for="2ma">2ma</label>
+        </div>
+
+        <div>
+            <input class="powerInput"  type="radio" id="4ma" name="power" value="4">
+            <label class="powerLabel" for="4ma">4ma</label>
+        </div>
+
+        <div>
+            <input class="powerInput"  type="radio" id="6ma" name="power" value="6">
+            <label class="powerLabel" for="6ma">6ma</label>
+        </div>
+
+        <div>
+            <input class="powerInput"  type="radio" id="8ma" name="power" value="8">
+            <label class="powerLabel" for="8ma">8ma</label>
+        </div>
+    </div>
 </div>
 
-<button class="stopButon">STOP</button>
-
-<button class="timeButton">Sync Time</button>
-
-
-
-<p class="powerSelector">Select TX power:</p>
-
-<div>
-    <input class="powerInput" type="radio" id="2ma" name="power" value="2"
-           checked>
-    <label class="powerLabel" for="2ma">2ma</label>
-</div>
-
-<div>
-    <input class="powerInput"  type="radio" id="4ma" name="power" value="4">
-    <label class="powerLabel" for="4ma">4ma</label>
-</div>
-
-<div>
-    <input class="powerInput"  type="radio" id="6ma" name="power" value="6">
-    <label class="powerLabel" for="6ma">6ma</label>
-</div>
-
-<div>
-    <input class="powerInput"  type="radio" id="8ma" name="power" value="8">
-    <label class="powerLabel" for="8ma">8ma</label>
+<div class="statusWrapper sectionWrapper">
+<!--    <div class="statusMessage center">...</div>-->
+    <ul id="messages"></ul>
 </div>
 
 
 
-<ul id="messages"></ul>
+
+
+
 
 <script src="app.js"></script>
 </body>

@@ -1,7 +1,6 @@
 vfo knob
 frequency display 7 segments
 
-sweep limits
 auto sweep button (once, many, infinite)
 
 
@@ -21,14 +20,15 @@ design
 
 -----------
 
-sine/square/triangle
-calibration
-eradicate jquery
+sine/square/triangle ?
+calibration ?
+remove jquery
 
 
 ============
 Done:
 
+sweep limits
 strength
 time synch
 cw on press

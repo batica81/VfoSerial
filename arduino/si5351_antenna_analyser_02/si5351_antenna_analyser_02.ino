@@ -11,8 +11,8 @@ int command = 1;
 unsigned long pctime;
 
 void setup() {
-  pinMode(A0, INPUT);
-  pinMode(A1, INPUT);
+  pinMode(A0, INPUT); // FWD
+  pinMode(A1, INPUT);  // REV
   Serial.begin(115200);
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin, LOW);
@@ -43,22 +43,22 @@ void updateFrequency() {
     if (Serial.read() == '\n') {
      switch (modeSelector) {
         case 1: // Testing if live
-          Serial.println("ready 1");
+//           Serial.println("ready 1");
           Serial.println(command);
           break;
   
         case 2: // Play simple tone, stop on 0
-          Serial.println("ready 2");
+//           Serial.println("ready 2");
           play(command);
           break;
   
         case 3: // Set power level
-          Serial.println("ready 3");
+//           Serial.println("ready 3");
           setPowerLevel(command);
           break;
   
         case 4: // Set time
-          Serial.println("ready 4");
+//           Serial.println("ready 4");
           setTime(command);
           digitalClockDisplay();
           break;
