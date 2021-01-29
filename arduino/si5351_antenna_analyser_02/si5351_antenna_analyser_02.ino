@@ -13,8 +13,8 @@
 #define WSPR_DELAY              683          // Delay value for WSPR
 #define FT8_DELAY               159          // Delay value for FT8
 
-#define WSPR_DEFAULT_FREQ       14097200UL
-#define FT8_DEFAULT_FREQ        5154000UL
+#define WSPR_DEFAULT_FREQ       6999000UL
+#define FT8_DEFAULT_FREQ        6999000UL
 
 #define ledPin                 13
 
@@ -41,39 +41,9 @@ bool timeWasSet = false;
 
 unsigned long pctime;
 
-// Loop through the string, transmitting one character at a time.
-void encode() {
-  uint8_t i;
 
-  // Reset the tone to the base frequency and turn on the output
-  si5351.output_enable(SI5351_CLK0, 1);
-  digitalWrite(ledPin, HIGH);
-
-  for(i = 0; i < symbol_count; i++) {
-      si5351.set_freq((freq * 100) + (tx_buffer[i] * tone_spacing), SI5351_CLK0);
-      delay(tone_delay);
-  }
-
-  // Turn off the output
-  si5351.output_enable(SI5351_CLK0, 0);
-  digitalWrite(ledPin, LOW);
-}
-
-void set_tx_buffer() {
-  // Clear out the transmit buffer
-  memset(tx_buffer, 0, 255);
-
-  // Set the proper frequency and timer CTC depending on mode
-  switch(cur_mode) {
-      case MODE_WSPR:
-        jtencode.wspr_encode(call, loc, dbm, tx_buffer);
-        break;
-      case MODE_FT8:
-        jtencode.ft8_encode(message, tx_buffer);
-        break;
-  }
-}
-
+int incomingByte = 0;
+String sdata="";  // Initialised to nothing.
 
 void setup() {
 
@@ -128,46 +98,97 @@ void setup() {
 
 void loop() {
   updateFrequency();
+  delay(2);
 }
 
 void updateFrequency() {
+byte ch;
 
-  while (Serial.available() > 0) {
-    int modeSelector = Serial.parseInt();
-    uint32_t command = Serial.parseInt();
+  if (Serial.available() ) {
+    // String parsing EXTREMLY slow !!!
 
-    if (Serial.read() == '\n') {
-     switch (modeSelector) {
-        case 1: // Testing if live
-          Serial.println(command);
-          break;
-  
-        case 2: // Play simple tone, stop on 0
-          play(command);
-          break;
-  
-        case 3: // Set power level
-          setPowerLevel(command);
-          break;
-  
-        case 4: // Set time
-          setTime(command);
-          timeWasSet = true;
-          digitalClockDisplay();
-          break;
+    // int modeSelector = Serial.parseInt();
+    // uint32_t command = Serial.parseInt();
+    ch = Serial.read();
+    sdata += (char)ch;
 
-        case 5: // Get time
-          digitalClockDisplay();
-          break;
+      if (ch=='\n') {  // Command recevied and ready.
+         sdata.trim();
+         // Process command in sdata.
+         Serial.println(sdata);
 
-        case 6: // Send FT8 message
-        // read mesage
-        // wait for timeslot
-          encode();
-          break;
+
+
+         if (sdata.startsWith("1")) {
+          Serial.println("OK");
+         }
+
+         else if (sdata.startsWith("2")) {
+          play(sdata.substring(2).toInt());
+         }
+
+          
+
+        sdata = ""; // Clear the string ready for the next command.
       }
-    }
+
+    // if (Serial.read() == '\n') {
+    //  switch (modeSelector) {
+    //     case 1: // Testing if live
+    //       Serial.println(command);
+    //       Serial.println("OK");
+    //       break;
+  
+    //     case 2: // Play simple tone, stop on 0
+    //       play(command);
+    //       break;
+  
+    //     case 3: // Set power level
+    //       setPowerLevel(command);
+    //       break;
+  
+    //     case 4: // Set time
+    //       setTime(command);
+    //       timeWasSet = true;
+    //       digitalClockDisplay();
+    //       break;
+
+    //     case 5: // Get time
+    //       digitalClockDisplay();
+    //       break;
+
+    //     case 6: // Send FT8 message
+    //     // read mesage
+    //     // set frequency
+    //     // update time
+    //     // wait for timeslot
+    //     Serial.println("6 entered");
+
+    //     readSerialString();
+
+    //     // encode();
+    //     break;
+          
+
+    //   }
+    // }
+
+
+
+
   }
+}
+
+void readSerialString () {
+  // send data only when you receive data:
+  if (Serial.available() > 0) {
+    // read the incoming byte:
+    incomingByte = Serial.read();
+
+    // say what you got:
+    Serial.print("I received: ");
+    Serial.println(incomingByte, DEC);
+}
 }
 
 void play(uint32_t tx) {
@@ -236,4 +257,38 @@ void printDigits(int digits){
   if(digits < 10)
     Serial.print('0');
   Serial.print(digits);
+}
+
+
+// Loop through the string, transmitting one character at a time.
+void encode() {
+  uint8_t i;
+
+  // Reset the tone to the base frequency and turn on the output
+  si5351.output_enable(SI5351_CLK0, 1);
+  digitalWrite(ledPin, HIGH);
+
+  for(i = 0; i < symbol_count; i++) {
+      si5351.set_freq((freq * 100) + (tx_buffer[i] * tone_spacing), SI5351_CLK0);
+      delay(tone_delay);
+  }
+
+  // Turn off the output
+  si5351.output_enable(SI5351_CLK0, 0);
+  digitalWrite(ledPin, LOW);
+}
+
+void set_tx_buffer() {
+  // Clear out the transmit buffer
+  memset(tx_buffer, 0, 255);
+
+  // Set the proper frequency and timer CTC depending on mode
+  switch(cur_mode) {
+      case MODE_WSPR:
+        jtencode.wspr_encode(call, loc, dbm, tx_buffer);
+        break;
+      case MODE_FT8:
+        jtencode.ft8_encode(message, tx_buffer);
+        break;
+  }
 }
