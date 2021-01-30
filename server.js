@@ -2,12 +2,20 @@ const express = require('express');
 const app = express();
 let http = require('http').createServer(app);
 let io = require('socket.io')(http);
+const isWin = process.platform === "win32";
 
-let SerialPortNumber = "COM13";
-// let SerialPortNumber = "/dev/ttyUSB0";
+
+if (!isWin) {
+// Linux:
+// var SerialPortNumber = "/dev/ttyUSB0";
+    var SerialPortNumber = "/dev/ttyACM0";
+} else {
+// Windows:
+    var SerialPortNumber = "COM13";
+}
+
 
 let baudRate = 115200;
-// let baudRate = 57600;
 
 app.use(express.static('public'));
 
@@ -15,8 +23,6 @@ app.use(express.static('public'));
 app.get('/', (req, res) => {
     res.sendFile('public/index.html', { root: __dirname });
 });
-
-
 
 
 http.listen(3000, () => {
@@ -43,16 +49,17 @@ io.on('connection', (socket) => {
 
 const SerialPort = require('serialport');
 const Readline = SerialPort.parsers.Readline;
-// const WriteLine = SerialPort.write('333');
 
-const port = new SerialPort(SerialPortNumber, {
-  	baudRate: baudRate
-    },
-    function (err) {
-        if (err) {
-            return console.log('Error: ', err.message);
-        }
-    });
+
+var port = new SerialPort(SerialPortNumber, {
+    baudRate: baudRate
+},
+function (err) {
+    if (err) {
+        return console.log('Error: ', err.message);
+    }
+});  
+
 
 const parser = new Readline();
 
