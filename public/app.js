@@ -114,6 +114,13 @@ $(function () {
         console.log("STOP sent");
     })
 
+
+    $('.sendMessageButton').on("click", function () {
+        let message = $('.messageTextInput').val().toUpperCase();
+        socket.emit('chat message',  "6," + message);
+
+    })
+
     $('.cwArea').on("mousedown", function () {
         socket.emit('chat message', "2," + currentFrequency);
 

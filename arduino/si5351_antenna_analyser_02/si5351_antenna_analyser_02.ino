@@ -26,7 +26,8 @@ JTEncode jtencode;
 
 // Global variables
 unsigned long freq;
-char message[] = "N0CALL AA00";
+// char message[] = "N0CALL AA00";
+char message[20] ;
 char call[] = "N0CALL";
 char loc[] = "AA00";
 uint8_t dbm = 27;
@@ -78,11 +79,12 @@ void setup() {
 
   // Encode the message in the transmit buffer
   // This is RAM intensive and should be done separately from other subroutines
-  set_tx_buffer();
+ // set_tx_buffer();
 
   pinMode(A0, INPUT); // FWD
   pinMode(A1, INPUT);  // REV
   Serial.begin(115200);
+  Serial.setTimeout(5);
 
   if (si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25002152, 0)) { //Miletova kalibracija
     Serial.println("SI5351 found, enabling clk0");
@@ -98,98 +100,71 @@ void setup() {
 
 void loop() {
   updateFrequency();
-  delay(2);
 }
 
 void updateFrequency() {
-byte ch;
+    String sdata;
+    int modeSelector;
+    // uint32_t command;
+    String command;
 
-  if (Serial.available() ) {
-    // String parsing EXTREMLY slow !!!
+    while (Serial.available() ) {
 
-    // int modeSelector = Serial.parseInt();
-    // uint32_t command = Serial.parseInt();
-    ch = Serial.read();
-    sdata += (char)ch;
+        sdata= Serial.readString();
+        sdata.trim();
+        modeSelector = sdata.substring(0,1).toInt();
+        command = sdata.substring(2);
 
-      if (ch=='\n') {  // Command recevied and ready.
-         sdata.trim();
-         // Process command in sdata.
-         Serial.println(sdata);
-
-
-
-         if (sdata.startsWith("1")) {
+     switch (modeSelector) {
+        case 1: // Testing if live
+          Serial.println(command);
           Serial.println("OK");
-         }
+          break;
+  
+        case 2: // Play simple tone, stop on 0
+          play(command.toInt());
+          break;
+  
+        case 3: // Set power level
+          setPowerLevel(command.toInt());
+          break;
+  
+        case 4: // Set time
+          setTime(command.toInt());
+          timeWasSet = true;
+          digitalClockDisplay();
+          break;
 
-         else if (sdata.startsWith("2")) {
-          play(sdata.substring(2).toInt());
-         }
+        case 5: // Get time
+          digitalClockDisplay();
+          break;
 
+        case 6: // Send FT8 message
+        // read mesage
+        // set frequency
+        // update time
+        // wait for timeslot
+          Serial.println("6 entered");
+          Serial.println(message);
+
+          int str_len = command.length() + 1; 
+          char char_array[str_len];
+          command.toCharArray(message, str_len);
+          set_tx_buffer();
+          delay(100);
+          Serial.println(message);
+          encode();
+          break;
           
 
-        sdata = ""; // Clear the string ready for the next command.
-      }
-
-    // if (Serial.read() == '\n') {
-    //  switch (modeSelector) {
-    //     case 1: // Testing if live
-    //       Serial.println(command);
-    //       Serial.println("OK");
-    //       break;
-  
-    //     case 2: // Play simple tone, stop on 0
-    //       play(command);
-    //       break;
-  
-    //     case 3: // Set power level
-    //       setPowerLevel(command);
-    //       break;
-  
-    //     case 4: // Set time
-    //       setTime(command);
-    //       timeWasSet = true;
-    //       digitalClockDisplay();
-    //       break;
-
-    //     case 5: // Get time
-    //       digitalClockDisplay();
-    //       break;
-
-    //     case 6: // Send FT8 message
-    //     // read mesage
-    //     // set frequency
-    //     // update time
-    //     // wait for timeslot
-    //     Serial.println("6 entered");
-
-    //     readSerialString();
-
-    //     // encode();
-    //     break;
-          
-
-    //   }
-    // }
+      } // end switch
+    } //end while serial
 
 
-
-
-  }
+  sdata = ""; // Clear the string ready for the next command.
 }
 
-void readSerialString () {
-  // send data only when you receive data:
-  if (Serial.available() > 0) {
-    // read the incoming byte:
-    incomingByte = Serial.read();
 
-    // say what you got:
-    Serial.print("I received: ");
-    Serial.println(incomingByte, DEC);
-}
-}
 
 void play(uint32_t tx) {
   if ( (1 < tx) && (tx < 200000001) ) {
