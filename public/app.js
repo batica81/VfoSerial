@@ -116,8 +116,12 @@ $(function () {
 
 
     $('.sendMessageButton').on("click", function () {
-        let message = $('.messageTextInput').val().toUpperCase();
-        socket.emit('chat message',  "6," + message);
+        // let message = $('.messageTextInput').val().toUpperCase();
+        // socket.emit('chat message',  "7," + message);
+
+        // waitEvenMinute();
+
+        waitQuarterMinute();
 
     })
 
@@ -182,4 +186,77 @@ $(function () {
 
     display.setValue('000.000.000');
 
+    let timeout;
+    let transmitting = false;
+
+    function waitEvenMinute () {
+        clearTimeout(timeout);
+        let timeToEven = 0;
+        let d = new Date();
+        let m = d.getMinutes();
+        let s = d.getSeconds();
+
+        if (m % 2 === 1 ) {
+            timeToEven = 60 - s;
+        } else {
+            timeToEven = 120 - s;
+        }
+
+        console.log('timeToEven: ', timeToEven);
+
+        timeout = setTimeout(function (){
+            console.log('evo ga')
+            // socket.emit('chat message',  "7," + "wspr");
+
+            let message = $('.messageTextInput').val().toUpperCase();
+            socket.emit('chat message',  "7," + message);
+
+        }, timeToEven * 1000)
+
+    }
+
+
+    function waitQuarterMinute () {
+        clearTimeout(timeout);
+        let timeToEven = 0;
+        let d = new Date();
+        // let m = d.getMinutes();
+        let s = d.getSeconds();
+
+        if (s % 15 === s ) {
+            timeToEven = 15 - s;
+        } else {
+            timeToEven = 15 - (s % 15);
+        }
+
+        console.log('timeToEven: ', timeToEven);
+
+        timeout = setTimeout(function (){
+            console.log('evo ga')
+            // socket.emit('chat message',  "7," + "wspr");
+
+            let message = $('.messageTextInput').val().toUpperCase();
+            socket.emit('chat message',  "7," + message);
+
+
+        }, timeToEven * 1000)
+
+    }
+
+
+
+    function stringToArray(c) {
+        let b = [];
+        let d = [];
+        let a;
+        a = c.toString();
+        a.split("").forEach(e => {b.push(e); b.push(",")});
+        d = b.join("");
+        console.log(d);
+    }
+
 })
+
+
+
+

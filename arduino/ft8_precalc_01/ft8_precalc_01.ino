@@ -11,9 +11,16 @@
 #define WSPR_DELAY              683          // Delay value for WSPR
 #define WSPR_DEFAULT_FREQ       7040000UL
 
+#define FT8_TONE_SPACING        625          // ~6.25 Hz
+#define FT8_DELAY               159          // Delay value for FT8
+// #define FT8_DEFAULT_FREQ        7075000UL
+#define FT8_DEFAULT_FREQ        7005000UL
+
+#define DEFAULT_MODE            MODE_FT8
+
 #define ledPin                 13
 
-enum mode {MODE_WSPR};
+enum mode {MODE_WSPR, MODE_FT8};
 
 // Class instantiation
 Si5351 si5351(0x60);
@@ -21,11 +28,15 @@ JTEncode jtencode;
 
 // Global variables
 unsigned long freq;
+// char message[] = "CQ YU4HAK KN04";
+char message[] = "YU1HAK YU4HAK KN04";
 char call[] = "YU4HAK";
 char loc[] = "KN04";
 uint8_t dbm = 10;
-uint8_t tx_buffer[255];
-enum mode cur_mode = MODE_WSPR;
+// uint8_t tx_buffer[255] = {3,1,4,0,6,5,2,0,0,0,0,0,0,0,0,1,1,7,5,0,4,3,2,0,1,4,1,1,2,2,3,0,3,3,5,1,3,1,4,0,6,5,2,4,5,7,5,3,1,2,2,5,3,2,5,1,1,4,1,7,5,7,1,3,7,6,3,4,3,7,3,0,3,1,4,0,6,5,2};
+// uint8_t tx_buffer[255];
+uint8_t tx_buffer[79];
+enum mode cur_mode = DEFAULT_MODE;
 uint8_t symbol_count;
 uint16_t tone_delay, tone_spacing;
 
@@ -50,12 +61,18 @@ void setup() {
       tone_spacing = WSPR_TONE_SPACING;
       tone_delay = WSPR_DELAY;
       break;
+    case MODE_FT8:
+      freq = FT8_DEFAULT_FREQ;
+      symbol_count = FT8_SYMBOL_COUNT; // From the library defines
+      tone_spacing = FT8_TONE_SPACING;
+      tone_delay = FT8_DELAY;
+      break;
   }
 
 
   // Encode the message in the transmit buffer
   // This is RAM intensive and should be done separately from other subroutines
-  set_tx_buffer();
+//   set_tx_buffer();
 
   pinMode(A0, INPUT); // FWD
   pinMode(A1, INPUT);  // REV
@@ -120,8 +137,13 @@ void updateFrequency() {
         // update time - do on client!
         // wait for timeslot
 
-//         cur_mode = MODE_WSPR;
-        Serial.println("sending wspr");
+        for(int i=0;i<command.length();i++){
+            tx_buffer[i] = command[i];
+        }
+
+        Serial.print("Sending message:");
+        Serial.println(command);
+
         encode();
         break;
 
@@ -235,6 +257,9 @@ void set_tx_buffer() {
   switch (cur_mode) {
     case MODE_WSPR:
       jtencode.wspr_encode(call, loc, dbm, tx_buffer);
+      break;
+    case MODE_FT8:
+      jtencode.ft8_encode(message, tx_buffer);
       break;
   }
 }

@@ -16,6 +16,8 @@
   "author": "Voja",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.19.0",
+    "child_process": "^1.0.2",
     "express": "^4.17.1",
     "json-server": "^0.16.2",
     "serialport": "^9.0.2",

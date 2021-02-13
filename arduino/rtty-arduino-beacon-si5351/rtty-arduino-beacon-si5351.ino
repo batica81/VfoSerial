@@ -1,11 +1,10 @@
-/*
-Basic RTTY Arduino audio Beacon
 
-See README in https://github.com/lu1aat/rtty-arduino-beacon-si5351 for instructions.
-*/
+//Basic RTTY Arduino audio Beacon
+//See README in https://github.com/lu1aat/rtty-arduino-beacon-si5351 for instructions.
 
 // DEBUG: uncomment the following line to get serial debugging at 9600
-//#define DEBUG
+
+#define DEBUG
 
 #define MARK 1
 #define SPACE 0
@@ -17,8 +16,8 @@ Si5351 si5351;
 const int LED_PIN = LED_BUILTIN;
 const int SLEEP_SEC = 60;
 // long FREQ = 1440520000UL; // 144.052 MHz
-long FREQ = 1440520000UL; // 144.052 MHz
-char MESSAGE[] = "CQ CQ CQ DE N0CALL N0CALL N0CALL";
+long FREQ = 69900000UL; //
+char MESSAGE[] = "CQ CQ CQ DE YU4HAK YU4HAK YU4HAK";
 // char MESSAGE[] = "CQ CQ CQ DE ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789";
 
 //
@@ -216,8 +215,8 @@ void setup() {
   #endif
 
   // Initialize Si5351, select frecuency, output and set power.
-  si5351.init(SI5351_CRYSTAL_LOAD_8PF, 0, 0);
-  si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_2MA);
+  si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25002152, 0);
+  si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_8MA);
   si5351.set_freq(FREQ + markFreqHz, SI5351_CLK0);
   si5351.output_enable(SI5351_CLK0, 0);
   

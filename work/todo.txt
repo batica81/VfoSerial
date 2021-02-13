@@ -1,18 +1,13 @@
 vfo knob
-frequency display 7 segments
 
 auto sweep button (once, many, infinite)
 
-
+band buttons
 
 swr range
 swr step
 swr grpah
 
-
-ft8 message
-ft4 message
-wspr message
 
 morse message
 
@@ -20,14 +15,15 @@ design
 
 -----------
 
-sine/square/triangle ?
-calibration ?
 remove jquery
+wspr message
 
 
 ============
 Done:
 
+
+frequency display 7 segments
 sweep limits
 strength
 time synch
