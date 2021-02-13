@@ -1,16 +1,18 @@
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser');
+const cors = require('cors');
+app.use(cors());
 const port = 3070
 const { execSync  } = require("child_process");
 
 
 function giveCode(textMessage) {
 
-    let stdout = execSync('ls');
-    // let stdout = execSync("./gen_ft8 " + textMessage + " 01.wav | grep FSK | cut -d' ' -f3");
+    // let stdout = execSync('ls');
+    let stdout = execSync("./gen_ft8 " + textMessage + " 01.wav | grep FSK | cut -d' ' -f3");
 
-    return  stdout.toString();
+    return  stdout.toString().trim();
 }
 
 

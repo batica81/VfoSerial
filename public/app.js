@@ -55,6 +55,9 @@ $(function () {
 
         currentFrequency = currentFrequencyInput.value.toString().replaceAll(".", "");
 
+        socket.emit('chat message', "6," + currentFrequency);
+        console.log(currentFrequency)
+
         // MorseJs.Play("cq cq de n5jlc k", 20, 500);
     })
 
@@ -72,12 +75,7 @@ $(function () {
         display.setValue(tmpFreq2);
     }
 
-    // $('form').submit(function(e) {
-    //     e.preventDefault(); // prevents page reloading
-    //     socket.emit('chat message', $('#m').val());
-    //     $('#m').val('');
-    //     return false;
-    // });
+
 
     socket.on('chat message', function(msg){
         $('#messages').append($('<li>').text(msg)).scrollTop($("#messages")[0].scrollHeight);
@@ -116,12 +114,12 @@ $(function () {
 
 
     $('.sendMessageButton').on("click", function () {
-        // let message = $('.messageTextInput').val().toUpperCase();
+        let message = $('.messageTextInput').val().toUpperCase();
         // socket.emit('chat message',  "7," + message);
 
         // waitEvenMinute();
 
-        waitQuarterMinute();
+        getCodes(message);
 
     })
 
@@ -189,34 +187,34 @@ $(function () {
     let timeout;
     let transmitting = false;
 
-    function waitEvenMinute () {
-        clearTimeout(timeout);
-        let timeToEven = 0;
-        let d = new Date();
-        let m = d.getMinutes();
-        let s = d.getSeconds();
+    // function waitEvenMinute () {
+    //     clearTimeout(timeout);
+    //     let timeToEven = 0;
+    //     let d = new Date();
+    //     let m = d.getMinutes();
+    //     let s = d.getSeconds();
+    //
+    //     if (m % 2 === 1 ) {
+    //         timeToEven = 60 - s;
+    //     } else {
+    //         timeToEven = 120 - s;
+    //     }
+    //
+    //     console.log('timeToEven: ', timeToEven);
+    //
+    //     timeout = setTimeout(function (){
+    //         console.log('evo ga')
+    //         // socket.emit('chat message',  "7," + "wspr");
+    //
+    //         let message = $('.messageTextInput').val().toUpperCase();
+    //         socket.emit('chat message',  "7," + message);
+    //
+    //     }, timeToEven * 1000)
+    //
+    // }
 
-        if (m % 2 === 1 ) {
-            timeToEven = 60 - s;
-        } else {
-            timeToEven = 120 - s;
-        }
 
-        console.log('timeToEven: ', timeToEven);
-
-        timeout = setTimeout(function (){
-            console.log('evo ga')
-            // socket.emit('chat message',  "7," + "wspr");
-
-            let message = $('.messageTextInput').val().toUpperCase();
-            socket.emit('chat message',  "7," + message);
-
-        }, timeToEven * 1000)
-
-    }
-
-
-    function waitQuarterMinute () {
+    function waitQuarterMinute (message) {
         clearTimeout(timeout);
         let timeToEven = 0;
         let d = new Date();
@@ -233,16 +231,27 @@ $(function () {
 
         timeout = setTimeout(function (){
             console.log('evo ga')
-            // socket.emit('chat message',  "7," + "wspr");
-
-            let message = $('.messageTextInput').val().toUpperCase();
             socket.emit('chat message',  "7," + message);
-
-
         }, timeToEven * 1000)
 
     }
 
+    function getCodes(textMessage) {
+        fetch('http://192.168.1.20:3070/', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({textMessage: textMessage})
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                waitQuarterMinute(data['calculated'])
+                // return data
+            });
+    }
 
 
     function stringToArray(c) {
