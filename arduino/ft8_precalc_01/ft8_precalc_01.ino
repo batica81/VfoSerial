@@ -6,6 +6,8 @@
 #include <string.h>
 
 
+#define FT8_SYMBOL_COUNT        79
+
 #define FT8_TONE_SPACING        625          // ~6.25 Hz
 #define FT8_DELAY               159          // Delay value for FT8
 #define FT8_DEFAULT_FREQ        7005000UL
@@ -21,7 +23,7 @@ Si5351 si5351(0x60);
 
 // Global variables
 unsigned long freq;
-char message[] = "YU1HAK YU4HAK KN04";
+char message[] = "CQ YU4HAK KN04";
 char call[] = "YU4HAK";
 char loc[] = "KN04";
 uint8_t dbm = 10;
@@ -69,13 +71,13 @@ void loop() {
 }
 
 void updateFrequency() {
-  String sdata;
+  String sdata = "";
   int modeSelector;
   String command;
 
-  while (Serial.available() ) {
+//   while (Serial.available() ) {
 
-    sdata = Serial.readString();
+    sdata = Serial.readStringUntil('\n');
     sdata.trim();
     modeSelector = sdata.substring(0, 1).toInt();
     command = sdata.substring(2);
@@ -126,9 +128,9 @@ void updateFrequency() {
 
 
     } // end switch
-  } //end while serial
+//   } //end while serial
 
-  sdata = ""; // Clear the string ready for the next command.
+//   sdata = ""; // Clear the string ready for the next command.
 }
 
 void waitTimeslot(){
