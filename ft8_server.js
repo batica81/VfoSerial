@@ -8,10 +8,7 @@ const { execSync  } = require("child_process");
 
 
 function giveCode(textMessage) {
-
-    // let stdout = execSync('ls');
     let stdout = execSync("./gen_ft8 " + textMessage + " 01.wav | grep FSK | cut -d' ' -f3");
-
     return  stdout.toString().trim();
 }
 

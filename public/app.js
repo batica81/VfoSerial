@@ -4,6 +4,8 @@ var isContinous = false;
 var statusLines = 500;
 let currentFrequency = 0;
 
+let wsprCounter = 1;
+
 var swrData = [];
 
 $(function () {
@@ -115,12 +117,12 @@ $(function () {
 
     $('.sendMessageButton').on("click", function () {
         let message = $('.messageTextInput').val().toUpperCase();
-        // socket.emit('chat message',  "7," + message);
-
-        // waitEvenMinute();
-
         getCodes(message);
+    })
 
+    $('.sendWsprButton').on("click", function () {
+        wsprCounter = parseInt($('.wsprCyclesCount').val());
+        waitEvenMinute();
     })
 
     $('.cwArea').on("mousedown", function () {
@@ -187,31 +189,32 @@ $(function () {
     let timeout;
     let transmitting = false;
 
-    // function waitEvenMinute () {
-    //     clearTimeout(timeout);
-    //     let timeToEven = 0;
-    //     let d = new Date();
-    //     let m = d.getMinutes();
-    //     let s = d.getSeconds();
-    //
-    //     if (m % 2 === 1 ) {
-    //         timeToEven = 60 - s;
-    //     } else {
-    //         timeToEven = 120 - s;
-    //     }
-    //
-    //     console.log('timeToEven: ', timeToEven);
-    //
-    //     timeout = setTimeout(function (){
-    //         console.log('evo ga')
-    //         // socket.emit('chat message',  "7," + "wspr");
-    //
-    //         let message = $('.messageTextInput').val().toUpperCase();
-    //         socket.emit('chat message',  "7," + message);
-    //
-    //     }, timeToEven * 1000)
-    //
-    // }
+    function waitEvenMinute () {
+        clearTimeout(timeout);
+        let timeToEven = 0;
+        let d = new Date();
+        let m = d.getMinutes();
+        let s = d.getSeconds();
+
+        if (m % 2 === 1 ) {
+            timeToEven = 60 - s;
+        } else {
+            timeToEven = 120 - s;
+        }
+
+        console.log('timeToEven: ', timeToEven);
+
+        timeout = setTimeout(function (){
+            console.log('sending wspr')
+            socket.emit('chat message',  "7," + "wspr");
+
+            if (wsprCounter > 0) {
+                waitEvenMinute();
+                wsprCounter--;
+            }
+        }, timeToEven * 1000)
+
+    }
 
 
     function waitQuarterMinute (message) {

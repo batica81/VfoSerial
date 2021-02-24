@@ -122,6 +122,7 @@ void updateFrequency() {
 
 //         cur_mode = MODE_WSPR;
         Serial.println("sending wspr");
+//         Serial.println(tx_buffer);
         encode();
         break;
 

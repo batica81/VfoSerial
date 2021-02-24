@@ -1,3 +1,9 @@
+
+
+merge arduino code for ft8 d wspr
+
+local linux ft 8server
+
 vfo knob
 
 auto sweep button (once, many, infinite)
