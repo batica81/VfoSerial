@@ -10,7 +10,7 @@
 
 #define FT8_TONE_SPACING        625          // ~6.25 Hz
 #define FT8_DELAY               159          // Delay value for FT8
-#define FT8_DEFAULT_FREQ        7005000UL
+#define FT8_DEFAULT_FREQ        7075000UL
 
 #define DEFAULT_MODE            MODE_FT8
 

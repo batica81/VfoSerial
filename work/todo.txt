@@ -2,7 +2,7 @@
 
 merge arduino code for ft8 d wspr
 
-local linux ft 8server
+local linux / win ft 8server
 
 vfo knob
 
@@ -16,6 +16,7 @@ swr grpah
 
 
 morse message
+rtty messagw ?
 
 design
 
