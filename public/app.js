@@ -210,7 +210,7 @@ function startup() {
 
     timeout = setTimeout(function () {
       console.log('sending wspr')
-      writeMessageToScreen('sending wspr')
+      writeMessageToScreen('Sending WSPR')
 
       socket.emit('chat message', '7,' + 'wspr')
 
@@ -239,8 +239,8 @@ function startup() {
 
     timeout = setTimeout(function () {
       console.log('Sending message')
-      writeMessageToScreen('Sending message')
-      socket.emit('chat message', '7,' + message)
+      writeMessageToScreen('Sending FT8 message')
+      socket.emit('chat message', '8,' + message)
     }, timeToEven * 1000)
   }
 

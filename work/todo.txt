@@ -1,8 +1,8 @@
 
 
-merge arduino code for ft8 d wspr
+local linux / win ft 8server / js precalc
 
-local linux / win ft 8server
+frequency calibration ???
 
 vfo knob
 
@@ -14,25 +14,21 @@ swr range
 swr step
 swr grpah
 
-
 morse message
-rtty messagw ?
 
-design
+UIdesign
+responsive
+
+electron app
+
+android test / app
 
 -----------
 
 remove jquery
 wspr message
 
+-----------
 
-============
-Done:
+rtty tested - NOT WORKING
 
-
-frequency display 7 segments
-sweep limits
-strength
-time synch
-cw on press
-continous cw

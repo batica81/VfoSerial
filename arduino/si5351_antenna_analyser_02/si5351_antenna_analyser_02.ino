@@ -9,11 +9,17 @@
 
 #define WSPR_TONE_SPACING       146          // ~1.46 Hz
 #define WSPR_DELAY              683          // Delay value for WSPR
-#define WSPR_DEFAULT_FREQ       7040000UL
+#define WSPR_DEFAULT_FREQ       7039950UL
+
+#define FT8_TONE_SPACING        625          // ~6.25 Hz
+#define FT8_DELAY               159          // Delay value for FT8
+#define FT8_DEFAULT_FREQ        7075000UL
+
+#define DEFAULT_MODE            MODE_WSPR
 
 #define ledPin                 13
 
-enum mode {MODE_WSPR};
+enum mode {MODE_WSPR, MODE_FT8};
 
 // Class instantiation
 Si5351 si5351(0x60);
@@ -21,11 +27,14 @@ JTEncode jtencode;
 
 // Global variables
 unsigned long freq;
+char message[] = "CQ YU4HAK KN04";
 char call[] = "YU4HAK";
 char loc[] = "KN04";
-uint8_t dbm = 10;
-uint8_t tx_buffer[255];
-enum mode cur_mode = MODE_WSPR;
+uint8_t dbm = 10; // 10dbm equals to 10mW, values are NOT arbitrary,check WSPR manual!
+//uint8_t tx_buffer[255];
+uint8_t tx_buffer[180];
+// uint8_t tx_buffer[79];
+enum mode cur_mode = DEFAULT_MODE;
 uint8_t symbol_count;
 uint16_t tone_delay, tone_spacing;
 
@@ -50,6 +59,12 @@ void setup() {
       tone_spacing = WSPR_TONE_SPACING;
       tone_delay = WSPR_DELAY;
       break;
+    case MODE_FT8:
+      freq = FT8_DEFAULT_FREQ;
+      symbol_count = FT8_SYMBOL_COUNT; // From the library defines
+      tone_spacing = FT8_TONE_SPACING;
+      tone_delay = FT8_DELAY;
+      break;
   }
 
 
@@ -62,9 +77,9 @@ void setup() {
   Serial.begin(115200);
   Serial.setTimeout(5);
 
-  if (si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25002152, 0)) { //Miletova kalibracija
+  if (si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25000000, 0)) { //Miletova kalibracija
     Serial.println("SI5351 found, enabling clk0");
-    si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_2MA); // Set for max power if desired  OPTIONS: 2 4 6 8 (MA)
+    si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_8MA); // Set for max power if desired  OPTIONS: 2 4 6 8 (MA)
     si5351.output_enable(SI5351_CLK0, 0); // Disable the clock initially
   }
   else {
@@ -114,18 +129,35 @@ void updateFrequency() {
         digitalClockDisplay();
         break;
 
-
       case 7: // Send WSPR message
-        // set frequency
-        // update time - do on client!
-        // wait for timeslot
+//        assume cur_mode = MODE_WSPR;
+        //todo: change mode and presets with a function !
 
-//         cur_mode = MODE_WSPR;
-        Serial.println("sending wspr");
-//         Serial.println(tx_buffer);
+        freq = WSPR_DEFAULT_FREQ;
+        symbol_count = WSPR_SYMBOL_COUNT; // From the library defines
+        tone_spacing = WSPR_TONE_SPACING;
+        tone_delay = WSPR_DELAY;
+
+        Serial.println("Sending predefined WSPR message.");
         encode();
         break;
 
+      case 8: // Send FT8 PRECALCULATED message
+
+        //todo: change mode and presets with a function !
+        freq = FT8_DEFAULT_FREQ;
+        symbol_count = FT8_SYMBOL_COUNT; // From the library defines
+        tone_spacing = FT8_TONE_SPACING;
+        tone_delay = FT8_DELAY;
+
+        // directly writing message to buffer
+        for(int i=0;i<command.length();i++){
+            tx_buffer[i] = command[i];
+        }
+        Serial.print("Sending FT8 message:");
+        Serial.println(command);
+        encode();
+        break;
 
     } // end switch
   } //end while serial
@@ -135,7 +167,6 @@ void updateFrequency() {
 
 void waitTimeslot(){
   int toNext;
-
   second();
   delay(toNext * 1000);
 }
@@ -236,6 +267,9 @@ void set_tx_buffer() {
   switch (cur_mode) {
     case MODE_WSPR:
       jtencode.wspr_encode(call, loc, dbm, tx_buffer);
+      break;
+    case MODE_FT8:
+      jtencode.ft8_encode(message, tx_buffer);
       break;
   }
 }
