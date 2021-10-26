@@ -4,16 +4,17 @@ const http = require('http').createServer(app)
 const io = require('socket.io')(http)
 const isWin = process.platform === 'win32'
 
+const baudRate = 115200
+let SerialPortNumber
+
 if (!isWin) {
 // Linux:
 // var SerialPortNumber = "/dev/ttyUSB0";
-  var SerialPortNumber = '/dev/ttyACM0'
+  SerialPortNumber = '/dev/ttyACM0'
 } else {
 // Windows:
-  var SerialPortNumber = 'COM13'
+  SerialPortNumber = 'COM13'
 }
-
-const baudRate = 115200
 
 app.use(express.static('public'))
 
@@ -36,9 +37,38 @@ io.on('connection', (socket) => {
 
     // console.log('message: ' + msg);
     io.emit('chat message', msg)
+    doOnPost()
   })
 })
 
+function doOnPost () {
+/// loval app handleing
+
+  let now = new Date()
+  const { spawn } = require('child_process')
+
+  // const ls = spawn("ls", ["-la"]);
+
+  const ls = spawn('./gen_ft8', ["'cq de yu4hak'", '0.wav'])
+
+  ls.stdout.on('data', data => {
+    console.log(`stdout: ${data}`)
+
+    console.log('msg data is: ', data.toString().split(' ')[2], now)
+  })
+
+  ls.stderr.on('data', data => {
+    console.log(`stderr: ${data}`)
+  })
+
+  ls.on('error', (error) => {
+    console.log(`error: ${error.message}`)
+  })
+
+  ls.on('close', code => {
+    console.log(`child process exited with code ${code}`)
+  })
+}
 /// ////////serial
 
 const SerialPort = require('serialport')
