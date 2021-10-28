@@ -51,10 +51,14 @@ function doOnPost () {
 
   const ls = spawn('./gen_ft8', ["'cq de yu4hak'", '0.wav'])
 
+  let res;
   ls.stdout.on('data', data => {
-    console.log(`stdout: ${data}`)
+    // console.log(`stdout: ${data}`)
+    // console.log(data)
 
-    console.log('msg data is: ', data.toString().split(' ')[2], now)
+    // console.log('msg data is: ', data.toString().split(' ')[2], now)
+    console.log(data.toString().split('\n')[1].split(' ')[2])
+    console.log('aa')
   })
 
   ls.stderr.on('data', data => {
@@ -66,7 +70,7 @@ function doOnPost () {
   })
 
   ls.on('close', code => {
-    console.log(`child process exited with code ${code}`)
+    // console.log(`child process exited with code ${code}`)
   })
 }
 /// ////////serial
