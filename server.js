@@ -3,6 +3,8 @@ const app = express()
 const http = require('http').createServer(app)
 const io = require('socket.io')(http)
 const isWin = process.platform === 'win32'
+const Tail = require('tail-file');
+const mytail = new Tail("/home/voja/.local/share/WSJT-X/test.txt")
 
 const baudRate = 115200
 let SerialPortNumber
@@ -41,8 +43,11 @@ io.on('connection', (socket) => {
   })
 })
 
+
+let counter = 0;
+
 function doOnPost () {
-/// loval app handleing
+/// local app handling
 
   let now = new Date()
   const { spawn } = require('child_process')
@@ -55,10 +60,14 @@ function doOnPost () {
   ls.stdout.on('data', data => {
     // console.log(`stdout: ${data}`)
     // console.log(data)
-
+    counter++;
     // console.log('msg data is: ', data.toString().split(' ')[2], now)
-    console.log(data.toString().split('\n')[1].split(' ')[2])
-    console.log('aa')
+        let dt = data.toString().split('\n')[1].split(' ')[2];
+    console.log(dt)
+        console.log('aa', counter)
+
+    io.emit('chat message', dt)
+
   })
 
   ls.stderr.on('data', data => {
@@ -73,6 +82,19 @@ function doOnPost () {
     // console.log(`child process exited with code ${code}`)
   })
 }
+
+function parseAllTxt() {
+
+
+
+}
+
+mytail.on('line', line => {
+  console.log(line)
+  io.emit('chat message', line )
+} );
+
+mytail.start();
 /// ////////serial
 
 const SerialPort = require('serialport')

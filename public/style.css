@@ -261,3 +261,13 @@ input.powerInput {
     padding: 10px;
     box-shadow: rgba(0, 0, 0, 0.35) 0 5px 15px;
 }
+#jogdial {
+    width: 200px;
+    height: 200px;
+    background: url('/img/bg.png');
+    background-repeat: none;
+}
+
+#jogdial_knob {
+    background: url('/img/knob.png');
+}

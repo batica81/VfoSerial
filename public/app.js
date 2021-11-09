@@ -11,6 +11,39 @@ const swrData = []
 window.addEventListener("load", startup);
 
 function startup() {
+
+  //jogdial
+
+  // var dial = JogDial(document.getElementById('jogdial'));
+
+  var dial = JogDial(document.getElementById('jogdial'),{
+    debug : false,
+    touchMode : 'knob',  // knob | wheel
+    knobSize : '30%',
+    wheelSize : '100%',
+    zIndex : 9999,
+    degreeStartAt : 0,
+    minDegree : null,  // (null) infinity
+    maxDegree : null   // (null) infinity
+  })
+
+  addEventListener("mousemove", function(evt){
+    // on move
+    // event.target.rotation
+  });
+
+  addEventListener("mousedown", function(evt){
+    // on move
+    // event.target.rotation
+  });
+
+  addEventListener("mouseup", function(evt){
+    // on move
+    // event.target.rotation
+  });
+
+
+
   // create web audio api context
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
   const socket = io()
