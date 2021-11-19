@@ -1,12 +1,5 @@
 
-
-local linux / win ft 8server /
-
 js precalc
-
-test arduino message (freecall or regular?)
-
-make headless app just for control ?
 
 all.txt parsing for message sequencing
 

@@ -4,18 +4,23 @@ const http = require('http').createServer(app)
 const io = require('socket.io')(http)
 const isWin = process.platform === 'win32'
 const Tail = require('tail-file');
-const mytail = new Tail("/home/voja/.local/share/WSJT-X/test.txt")
+const { spawn, execSync} = require('child_process')
 
 const baudRate = 115200
+let mytail
 let SerialPortNumber
 
-if (!isWin) {
-// Linux:
-// var SerialPortNumber = "/dev/ttyUSB0";
-  SerialPortNumber = '/dev/ttyACM0'
+if (isWin) {
+  // Windows:
+  SerialPortNumber = 'COM6'
+  // mytail = new Tail("/Users/Voja/AppData/Local/WSJT-X/ALL.TXT")
+  mytail = new Tail("/Users/Voja/AppData/Local/WSJT-X/test.txt")
 } else {
-// Windows:
-  SerialPortNumber = 'COM13'
+  // Linux:
+  // var SerialPortNumber = "/dev/ttyUSB0";
+  SerialPortNumber = '/dev/ttyACM0'
+  // mytail = new Tail("/home/voja/.local/share/WSJT-X/ALL.TXT")
+  mytail = new Tail("/home/voja/.local/share/WSJT-X/test.txt")
 }
 
 app.use(express.static('public'))
@@ -23,6 +28,14 @@ app.use(express.static('public'))
 app.get('/', (req, res) => {
   res.sendFile('public/index.html', { root: __dirname })
 })
+
+app.post('/', (req, res) => {
+  let textMessage = 'CQ YU4HAK KN04';
+  let resText = giveCode(textMessage);
+  console.log(resText);
+  res.send(resText);
+})
+
 
 http.listen(3000, () => {
   console.log('listening on http://localhost:3000')
@@ -39,62 +52,43 @@ io.on('connection', (socket) => {
 
     // console.log('message: ' + msg);
     io.emit('chat message', msg)
-    doOnPost()
   })
 })
 
-
-let counter = 0;
-
-function doOnPost () {
-/// local app handling
-
-  let now = new Date()
-  const { spawn } = require('child_process')
-
-  // const ls = spawn("ls", ["-la"]);
-
-  const ls = spawn('./gen_ft8', ["'cq de yu4hak'", '0.wav'])
-
-  let res;
-  ls.stdout.on('data', data => {
-    // console.log(`stdout: ${data}`)
-    // console.log(data)
-    counter++;
-    // console.log('msg data is: ', data.toString().split(' ')[2], now)
-        let dt = data.toString().split('\n')[1].split(' ')[2];
-    console.log(dt)
-        console.log('aa', counter)
-
-    io.emit('chat message', dt)
-
-  })
-
-  ls.stderr.on('data', data => {
-    console.log(`stderr: ${data}`)
-  })
-
-  ls.on('error', (error) => {
-    console.log(`error: ${error.message}`)
-  })
-
-  ls.on('close', code => {
-    // console.log(`child process exited with code ${code}`)
-  })
+function giveCode (textMessage) {
+  let parsedString
+  if (isWin) {
+    // Windows:
+    const stdout = execSync('ft8code.exe "' + textMessage + '"')
+    parsedString = stdout.toString().trim().split('Sync')[3].replace(/\s+/g, '').trim();
+  } else {
+    // Linux:
+    const stdout = execSync('./gen_ft8 "' + textMessage + '"' + " 01.wav | grep FSK | cut -d' ' -f3")
+    parsedString = stdout.toString().trim()
+  }
+  return parsedString;
 }
 
 function parseAllTxt() {
 
-
-
 }
 
 mytail.on('line', line => {
-  console.log(line)
-  io.emit('chat message', line )
+  let calculatedLine = giveCode(line)
+  console.log(calculatedLine)
+  io.emit('chat message', calculatedLine )
+
+  port.write('8,'+ calculatedLine + '\n', function (err) {
+    if (err) {
+      return console.log('Error on write: ', err.message)
+    }
+    // console.log('message written')
+  })
+
 } );
 
 mytail.start();
+
 /// ////////serial
 
 const SerialPort = require('serialport')
