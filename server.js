@@ -7,12 +7,13 @@ const Tail = require('tail-file');
 const { spawn, execSync} = require('child_process')
 
 const baudRate = 115200
+const callsign = "YU4HAK"
 let mytail
 let SerialPortNumber
 
 if (isWin) {
   // Windows:
-  SerialPortNumber = 'COM6'
+  SerialPortNumber = 'COM12'
   mytail = new Tail("/Users/Voja/AppData/Local/WSJT-X/ALL.TXT")
   // mytail = new Tail("/Users/Voja/AppData/Local/WSJT-X/test.txt")
 } else {
@@ -80,7 +81,7 @@ mytail.on('line', line => {
   let messageString = messageArray.join(" ").trim()
   console.log('message: ', messageString)
 
-  if (lineArray[8] === "YU4HAK"){
+  if (lineArray[8] === callsign){
     let calculatedLine = giveCode(protocol, messageString)
     console.log(calculatedLine)
     io.emit('chat message', calculatedLine )
