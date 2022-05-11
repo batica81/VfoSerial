@@ -43,6 +43,10 @@ function startup() {
   });
 
 
+  const statusLog = document.querySelector('#messages')
+
+  const clearStatusLog = document.querySelector('.clearStatusLog')
+  clearStatusLog.addEventListener("click", (e) => statusLog.innerHTML = '')
 
   // create web audio api context
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)()

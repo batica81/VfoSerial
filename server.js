@@ -13,14 +13,14 @@ let SerialPortNumber
 if (isWin) {
   // Windows:
   SerialPortNumber = 'COM6'
-  // mytail = new Tail("/Users/Voja/AppData/Local/WSJT-X/ALL.TXT")
-  mytail = new Tail("/Users/Voja/AppData/Local/WSJT-X/test.txt")
+  mytail = new Tail("/Users/Voja/AppData/Local/WSJT-X/ALL.TXT")
+  // mytail = new Tail("/Users/Voja/AppData/Local/WSJT-X/test.txt")
 } else {
   // Linux:
   // var SerialPortNumber = "/dev/ttyUSB0";
   SerialPortNumber = '/dev/ttyACM0'
-  // mytail = new Tail("/home/voja/.local/share/WSJT-X/ALL.TXT")
-  mytail = new Tail("/home/voja/.local/share/WSJT-X/test.txt")
+  mytail = new Tail("/home/voja/.local/share/WSJT-X/ALL.TXT")
+  // mytail = new Tail("/home/voja/.local/share/WSJT-X/test.txt")
 }
 
 app.use(express.static('public'))
@@ -55,7 +55,7 @@ io.on('connection', (socket) => {
   })
 })
 
-function giveCode (textMessage) {
+function giveCode (protocol, textMessage) {
   let parsedString
   if (isWin) {
     // Windows:
@@ -74,16 +74,26 @@ function parseAllTxt() {
 }
 
 mytail.on('line', line => {
-  let calculatedLine = giveCode(line)
-  console.log(calculatedLine)
-  io.emit('chat message', calculatedLine )
+  let lineArray = line.split(" ").filter(word => word !== "");
+  let protocol = lineArray[3]
+  let messageArray = [lineArray[7], lineArray[8], lineArray[9]]
+  let messageString = messageArray.join(" ").trim()
+  console.log('message: ', messageString)
 
-  port.write('8,'+ calculatedLine + '\n', function (err) {
-    if (err) {
-      return console.log('Error on write: ', err.message)
-    }
-    // console.log('message written')
-  })
+  if (lineArray[8] === "YU4HAK"){
+    let calculatedLine = giveCode(protocol, messageString)
+    console.log(calculatedLine)
+    io.emit('chat message', calculatedLine )
+
+    port.write('8,'+ calculatedLine + '\n', function (err) {
+      if (err) {
+        return console.log('Error on write: ', err.message)
+      }
+      // console.log('message written')
+    })
+  }
+
+
 
 } );
 
