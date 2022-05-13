@@ -39,6 +39,7 @@ form button {
     padding: 0;
     max-height: 200px;
     overflow: auto;
+    font-size: 18px;
 }
 
 #display {
