@@ -12,6 +12,22 @@ window.addEventListener("load", startup);
 
 function startup() {
 
+  document.addEventListener('keydown', logKey);
+  document.addEventListener('keyup', logKeyUp);
+
+  function logKey(e) {
+    if (e.code === "ControlRight") {
+      cwPlay()
+    }
+  }
+
+  function logKeyUp(e) {
+    if (e.code === "ControlRight") {
+      console.log("ctrl UP ~~~")
+      cwStop()
+    }
+  }
+
   //jogdial
 
   // var dial = JogDial(document.getElementById('jogdial'));
@@ -43,6 +59,10 @@ function startup() {
   });
 
 
+  const statusLog = document.querySelector('#messages')
+
+  const clearStatusLog = document.querySelector('.clearStatusLog')
+  clearStatusLog.addEventListener("click", (e) => statusLog.innerHTML = '')
 
   // create web audio api context
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
@@ -56,6 +76,8 @@ function startup() {
   const lowFreqLimit = document.querySelector('.lowFreqLimit')
   const highFreqLimit = document.querySelector('.highFreqLimit')
   const sweepStep = document.querySelector('.sweepStep')
+
+  const cwArea = document.querySelector('.cwArea')
 
   // autoNumeric with the defaults options
   new AutoNumeric(currentFrequencyInput, {
@@ -161,7 +183,9 @@ function startup() {
     waitEvenMinute()
   })
 
-  $('.cwArea').on('mousedown', function () {
+ cwArea.addEventListener('mousedown', cwPlay)
+
+  function cwPlay() {
     socket.emit('chat message', '2,' + currentFrequency)
 
     // create Oscillator node
@@ -175,14 +199,18 @@ function startup() {
       console.log('Sidetone only up to 96khz')
       writeMessageToScreen('Sidetone only up to 96khz')
     }
-  }).on('mouseup', function () {
-    if (!isContinous) {
-      socket.emit('chat message', '2,' + 0)
-    }
-    if (oscillator && !isContinous) {
-      oscillator.stop()
-    }
-  })
+  }
+
+  cwArea.addEventListener('mouseup', cwStop)
+
+  function cwStop() {
+        if (!isContinous) {
+          socket.emit('chat message', '2,' + 0)
+        }
+        if (oscillator && !isContinous) {
+          oscillator.stop()
+        }
+     }
 
   $('.timeButton').on('click', function () {
     socket.emit('chat message', '4,' + timeSynch())

@@ -26,7 +26,11 @@
     "express": "^4.17.1",
     "json-server": "^0.16.2",
     "serialport": "^9.0.2",
+<<<<<<< HEAD
     "socket.io": "^4.4.1",
+=======
+    "socket.io": "^4.5.0",
+>>>>>>> 4e301681f35edc21c8c665272eeb521b84851de6
     "tail-file": "^1.4.14"
   },
   "devDependencies": {

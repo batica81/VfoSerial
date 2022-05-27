@@ -1,8 +1,6 @@
 
 js precalc
 
-all.txt parsing for message sequencing
-
 frequency calibration ???
 
 vfo knob

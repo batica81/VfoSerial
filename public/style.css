@@ -39,6 +39,7 @@ form button {
     padding: 0;
     max-height: 200px;
     overflow: auto;
+    font-size: 18px;
 }
 
 #display {
@@ -270,4 +271,10 @@ input.powerInput {
 
 #jogdial_knob {
     background: url('/img/knob.png');
+}
+
+.clearStatusLog {
+    padding: 5px;
+    font-size: 20px;
+    margin: 10px 0;
 }
