@@ -1,62 +1,36 @@
 let oscillator
 let isContinous = false
-
 let statusLines = 500
 let currentFrequency = 0
-
 let wsprCounter = 1
-
-const swrData = []
+let swrData = []
 
 window.addEventListener("load", startup);
 
 function startup() {
 
+  // Chart for swr
+  let swrChart = new Chart(document.getElementById("line-chart"), {
+    type: 'line',
+    data: {
+      labels: [1500,1600,1700,1750,1800,1850,1900,1950,1999,2050],
+      datasets: [{
+          data: [86,114,106,106,107,111,133,221,783,2478],
+          label: "SWR",
+          borderColor: "#3e95cd",
+          fill: false
+        }
+      ]
+    },
+    options: {
+      title: {
+        display: true,
+        text: 'SWR on the selected band'
+      }
+    }
+  });
 
-//   Add chart for swr
-//   new Chart(document.getElementById("line-chart"), {
-//   type: 'line',
-//   data: {
-//     labels: [1500,1600,1700,1750,1800,1850,1900,1950,1999,2050],
-//     datasets: [{ 
-//         data: [86,114,106,106,107,111,133,221,783,2478],
-//         label: "Africa",
-//         borderColor: "#3e95cd",
-//         fill: false
-//       }, { 
-//         data: [282,350,411,502,635,809,947,1402,3700,5267],
-//         label: "Asia",
-//         borderColor: "#8e5ea2",
-//         fill: false
-//       }, { 
-//         data: [168,170,178,190,203,276,408,547,675,734],
-//         label: "Europe",
-//         borderColor: "#3cba9f",
-//         fill: false
-//       }, { 
-//         data: [40,20,10,16,24,38,74,167,508,784],
-//         label: "Latin America",
-//         borderColor: "#e8c3b9",
-//         fill: false
-//       }, { 
-//         data: [6,3,2,2,7,26,82,172,312,433],
-//         label: "North America",
-//         borderColor: "#c45850",
-//         fill: false
-//       }
-//     ]
-//   },
-//   options: {
-//     title: {
-//       display: true,
-//       text: 'World population per region (in millions)'
-//     }
-//   }
-// });
-
-
-
-
+  // Catch keuboard keyer key
   document.addEventListener('keydown', logKey);
   document.addEventListener('keyup', logKeyUp);
 
@@ -68,13 +42,11 @@ function startup() {
 
   function logKeyUp(e) {
     if (e.code === "ControlRight") {
-      console.log("ctrl UP ~~~")
       cwStop()
     }
   }
 
   //jogdial
-
   // var dial = JogDial(document.getElementById('jogdial'));
 
   var dial = JogDial(document.getElementById('jogdial'),{
@@ -103,9 +75,7 @@ function startup() {
     // event.target.rotation
   });
 
-
   const statusLog = document.querySelector('#messages')
-
   const clearStatusLog = document.querySelector('.clearStatusLog')
   clearStatusLog.addEventListener("click", (e) => statusLog.innerHTML = '')
 
@@ -121,6 +91,7 @@ function startup() {
   const lowFreqLimit = document.querySelector('.lowFreqLimit')
   const highFreqLimit = document.querySelector('.highFreqLimit')
   const sweepStep = document.querySelector('.sweepStep')
+  const bandSweepButton = document.querySelector('.bandSweepButton')
 
   const cwArea = document.querySelector('.cwArea')
 
@@ -158,10 +129,18 @@ function startup() {
 
     currentFrequency = currentFrequencyInput.value.toString().replaceAll('.', '')
 
-    socket.emit('chat message', '6,' + currentFrequency)
+    socket.emit('socketMessage', '6,' + currentFrequency)
     console.log(currentFrequency)
 
     // MorseJs.Play("cq cq de n5jlc k", 20, 500);
+  })
+
+  bandSweepButton.addEventListener('click', function (){
+    let freqs =  Object.keys(swrData).map(key => (swrData[key]['freq'] ));
+    let swr =  Object.keys(swrData).map(key => (swrData[key]['swr'] ));
+    swrChart.data.labels = freqs;
+    swrChart.data.datasets[0].data = swr;
+    swrChart.update();
   })
 
   function updateFreq (freq) {
@@ -187,13 +166,13 @@ function startup() {
     }
     if (msg.includes(':')) {
       const tmpObj = {}
-      tmpObj.freq = msg.split(':')[0]
-      tmpObj.swr = msg.split(':')[1]
+      tmpObj.freq = parseInt(msg.split(':')[0])
+      tmpObj.swr = parseFloat(msg.split(':')[1].trim())
       swrData.push(tmpObj)
     }
   }
 
-  socket.on('chat message',function (msg) {
+  socket.on('socketMessage',function (msg) {
     writeMessageToScreen(msg)
   })
 
@@ -204,13 +183,22 @@ function startup() {
 
     currentFreq.innerHTML = this.value
     updateFreq(this.value.toString())
-    socket.emit('chat message', '2,' + this.value)
+    socket.emit('socketMessage', '2,' + this.value)
+  }).on('mouseup', function (){
+    socket.emit('socketMessage', '2,' + 0)
+    if (oscillator) {
+      oscillator.stop()
+    }
+    console.log('STOP sent')
+    writeMessageToScreen('STOP Sent')
+  }).on('mousedown', function (){
+    swrData = []
   })
 
   $('.stopButon').on('click', function () {
     currentFreq.innerHTML = '0'
     updateFreq('000.000.000')
-    socket.emit('chat message', '2,' + 0)
+    socket.emit('socketMessage', '2,' + 0)
     if (oscillator) {
       oscillator.stop()
     }
@@ -231,7 +219,7 @@ function startup() {
  cwArea.addEventListener('mousedown', cwPlay)
 
   function cwPlay() {
-    socket.emit('chat message', '2,' + currentFrequency)
+    socket.emit('socketMessage', '2,' + currentFrequency)
 
     // create Oscillator node for sidetone
     if (currentFrequency < 96000) {
@@ -250,7 +238,7 @@ function startup() {
 
   function cwStop() {
         if (!isContinous) {
-          socket.emit('chat message', '2,' + 0)
+          socket.emit('socketMessage', '2,' + 0)
         }
         if (oscillator && !isContinous) {
           oscillator.stop()
@@ -258,7 +246,7 @@ function startup() {
      }
 
   $('.timeButton').on('click', function () {
-    socket.emit('chat message', '4,' + timeSynch())
+    socket.emit('socketMessage', '4,' + timeSynch())
     console.log('timeSynch sent')
     writeMessageToScreen('timeSynch sent')
   })
@@ -272,7 +260,7 @@ function startup() {
   }
 
   $('input[type=radio][name=power]').change(function () {
-    socket.emit('chat message', '3,' + this.value)
+    socket.emit('socketMessage', '3,' + this.value)
   })
 
   continuousTX.addEventListener('change', function () {
@@ -318,7 +306,7 @@ function startup() {
       console.log('sending wspr')
       writeMessageToScreen('Sending WSPR')
 
-      socket.emit('chat message', '7,' + 'wspr')
+      socket.emit('socketMessage', '7,' + 'wspr')
 
       if (wsprCounter > 0) {
         waitEvenMinute()
@@ -346,12 +334,13 @@ function startup() {
     timeout = setTimeout(function () {
       console.log('Sending message')
       writeMessageToScreen('Sending FT8 message')
-      socket.emit('chat message', '8,' + message)
+      socket.emit('socketMessage', '8,' + message)
     }, timeToEven * 1000)
   }
 
   function getCodes (textMessage) {
-    fetch('http://192.168.1.20:3070/', {
+    //   fetch('http://192.168.1.20:3070/', {  // external api
+    fetch('http://localhost:3000/getcodes', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -363,7 +352,6 @@ function startup() {
       .then(data => {
         console.log(data)
         waitQuarterMinute(data.calculated)
-        // return data
       })
   }
 

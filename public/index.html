@@ -34,14 +34,12 @@
         <span class="checkmark"></span>
     </label>
 
-
     <button class="stopButon">STOP</button>
 
     <div class="setFrequencyWrapper">
         <input class="currentFrequencyInput" type="text" value="7040100" placeholder="7040100">
         <button class="setFrequencyButton">Set Frequency</button>
     </div>
-
 </div>
 
 <!--<div class="messageWrapper sectionWrapper">-->
@@ -67,12 +65,16 @@
         <label for="freqSlider">Sweep frequencies</label>
         <input type="range" value="0" min="26965000" max="27500000" step="10000" class="freqSlider" name="freqSlider" id="freqSlider">
     </div>
+
+    <div class="bandSweepWrapper">
+        <button class="bandSweepButton">Band Sweep</button>
+    </div>
 </div>
 
 
 <div class="chartWrapper sectionWrapper">
     <canvas id="line-chart" width="800" height="450"></canvas>
-<div>
+</div>
 
 <div class="utilWrapper sectionWrapper">
     <button class="timeButton">Sync Time</button>
@@ -122,12 +124,6 @@
 <!--    <div class="statusMessage center">...</div>-->
     <ul id="messages"></ul>
 </div>
-
-
-
-
-
-
 
 <script src="app.js"></script>
 </body>

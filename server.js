@@ -6,6 +6,10 @@ const isWin = process.platform === 'win32'
 const Tail = require('tail-file');
 const { spawn, execSync} = require('child_process')
 
+app.use(express.static('public'))
+app.use(express.json());
+
+const appPort = 3000;
 const baudRate = 115200
 const callsign = "YU4HAK"
 let mytail
@@ -24,35 +28,29 @@ if (isWin) {
   // mytail = new Tail("/home/voja/.local/share/WSJT-X/test.txt")
 }
 
-app.use(express.static('public'))
-
 app.get('/', (req, res) => {
   res.sendFile('public/index.html', { root: __dirname })
 })
 
-app.post('/', (req, res) => {
-  let textMessage = 'CQ YU4HAK KN04';
-  let resText = giveCode(textMessage);
-  console.log(resText);
-  res.send(resText);
+app.post('/getcodes', (req, res) => {
+  let resText = giveCode("FT8", req.body.textMessage).toString();
+  let resObject = {}
+  resObject.calculated = resText;
+  res.send(JSON.stringify(resObject))
 })
 
-
-http.listen(3000, () => {
-  console.log('listening on http://localhost:3000')
+http.listen(appPort, () => {
+  console.log('listening on http://localhost:' + appPort)
 })
 
 io.on('connection', (socket) => {
-  socket.on('chat message', (msg) => {
+  socket.on('socketMessage', (msg) => {
     port.write(msg + '\n', function (err) {
       if (err) {
         return console.log('Error on write: ', err.message)
       }
-      // console.log('message written')
     })
-
-    // console.log('message: ' + msg);
-    io.emit('chat message', msg)
+    io.emit('socketMessage', msg)
   })
 })
 
@@ -70,10 +68,6 @@ function giveCode (protocol, textMessage) {
   return parsedString;
 }
 
-function parseAllTxt() {
-
-}
-
 mytail.on('line', line => {
   let lineArray = line.split(" ").filter(word => word !== "");
   let protocol = lineArray[3]
@@ -84,18 +78,14 @@ mytail.on('line', line => {
   if (lineArray[8] === callsign){
     let calculatedLine = giveCode(protocol, messageString)
     console.log(calculatedLine)
-    io.emit('chat message', calculatedLine )
+    io.emit('socketMessage', calculatedLine )
 
     port.write('8,'+ calculatedLine + '\n', function (err) {
       if (err) {
         return console.log('Error on write: ', err.message)
       }
-      // console.log('message written')
     })
   }
-
-
-
 } );
 
 mytail.start();
@@ -118,8 +108,6 @@ const parser = new Readline()
 
 port.pipe(parser)
 
-// parser.on('data', console.log);
 parser.on('data', function (data) {
-  io.emit('chat message', data)
-  // console.log(data)
+  io.emit('socketMessage', data)
 })

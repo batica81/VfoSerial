@@ -71,7 +71,7 @@ form button {
     color: darkmagenta;
 }
 
-.timeButton, .sendMessageButton, .sendWsprButton {
+.timeButton, .sendMessageButton, .sendWsprButton, .bandSweepButton {
     font-size: 30px;
     font-weight: 700;
     padding: 5px;
@@ -265,8 +265,7 @@ input.powerInput {
 #jogdial {
     width: 200px;
     height: 200px;
-    background: url('/img/bg.png');
-    background-repeat: none;
+    background: url('/img/bg.png') no-repeat;
 }
 
 #jogdial_knob {
