@@ -188,7 +188,7 @@ function startup() {
   function cwPlay() {
     socket.emit('chat message', '2,' + currentFrequency)
 
-    // create Oscillator node
+    // create Oscillator node for sidetone
     if (currentFrequency < 96000) {
       oscillator = audioCtx.createOscillator()
       oscillator.type = 'sine'

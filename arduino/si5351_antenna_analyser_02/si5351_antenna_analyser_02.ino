@@ -31,7 +31,7 @@ char message[] = "CQ YU4HAK KN04";
 char call[] = "YU4HAK";
 char loc[] = "KN04";
 uint8_t dbm = 10; // 10dbm equals to 10mW, values are NOT arbitrary,check WSPR manual!
-//uint8_t tx_buffer[255];
+//uint8_t tx_buffer[255];  // too much for arduino!!!
 uint8_t tx_buffer[180];
 // uint8_t tx_buffer[79];
 enum mode cur_mode = DEFAULT_MODE;
