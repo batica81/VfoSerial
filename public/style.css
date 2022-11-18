@@ -97,6 +97,10 @@ form button {
     padding: 5px;
 }
 
+.currentFreqWrapper {
+    text-align: center;
+}
+
 .cwArea {
     background-color: brown;
     display: flex;
@@ -113,16 +117,22 @@ form button {
     background-color: darkgray;
 }
 
-
 p.powerSelector,
 label.powerLabel {
-    font: 1rem 'Fira Sans', sans-serif;
+    font: 20px 'Fira Sans', sans-serif;
 }
 
 input.powerInput {
     margin: .4rem;
 }
 
+.powerSelector {
+    margin: 15px;
+}
+
+.powerWrapper {
+    display: flex;
+}
 
 /*checkbox*/
 /* The container */
@@ -190,7 +200,6 @@ input.powerInput {
     -ms-transform: rotate(45deg);
     transform: rotate(45deg);
 }
-
 
 /* The container */
 .container-radio {
@@ -276,4 +285,14 @@ input.powerInput {
     padding: 5px;
     font-size: 20px;
     margin: 10px 0;
+}
+
+.bandWrapper {
+    display: flex;
+    justify-content: space-around;
+}
+
+.bandSelector, .bandSweepWrapper {
+    text-align: center;
+    margin: 15px;
 }

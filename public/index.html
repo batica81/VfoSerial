@@ -8,8 +8,6 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="Morse.js"></script>
     <script src="jquery-3.4.1.min.js"></script>
-    <script src="jogDial.min.js"></script>
-<!--    <script src="https://cdn.jsdelivr.net/npm/autonumeric@4.5.4"></script>-->
     <script src="autonumeric.js"></script>
     <script type="text/javascript" src="segment-display.js"></script>
     <script type="text/javascript" src="Chart.min.js"></script>
@@ -17,13 +15,10 @@
 <body id="body">
 
 <div class="currentFreqWrapper sectionWrapper">
-    <div class="currentFreq center">0</div>
-
     <canvas id="display" width="260" height="140">
         Your browser is unfortunately not supported.
     </canvas>
-
-    <div id="jogdial"></div>
+    <div class="currentFreq center">0</div>
 </div>
 
 <div class="freqWrapper sectionWrapper">
@@ -42,12 +37,6 @@
     </div>
 </div>
 
-<!--<div class="messageWrapper sectionWrapper">-->
-<!--    <form action="">-->
-<!--        <input id="m" autocomplete="off" /><button>Send</button>-->
-<!--    </form>-->
-<!--</div> -->
-
 <div class="limitsWrapper sectionWrapper">
     <label for="lowFreqLimit">Start frequency</label>
     <input class="lowFreqLimit" name="lowFreqLimit" id="lowFreqLimit" type="text" value="6000000" placeholder="6000000">
@@ -60,15 +49,51 @@
     <label for="sweepStep">Step</label>
     <input class="sweepStep" name="sweepStep" id="sweepStep" type="text" value="1000" placeholder="1000">
 
-
     <div class="sliderWrapper">
         <label for="freqSlider">Sweep frequencies</label>
         <input type="range" value="0" min="26965000" max="27500000" step="10000" class="freqSlider" name="freqSlider" id="freqSlider">
     </div>
 
+    <p class="bandSelector">Select Band to scan:</p>
+    <div class="bandWrapper">
+        <div>
+            <input class="bandInput" type="radio" id="160m" name="band" value="160m">
+            <label class="bandLabel" for="160m">160m</label>
+        </div>
+        <div>
+            <input class="bandInput"  type="radio" id="80m" name="band" value="80m">
+            <label class="bandLabel" for="80m">80m</label>
+        </div>
+        <div>
+            <input class="bandInput"  type="radio" id="40m" name="band" value="40m" checked>
+            <label class="bandLabel" for="40m">40m</label>
+        </div>
+        <div>
+            <input class="bandInput"  type="radio" id="20m" name="band" value="20m">
+            <label class="bandLabel" for="20m">20m</label>
+        </div>
+        <div>
+            <input class="bandInput"  type="radio" id="15m" name="band" value="15m">
+            <label class="bandLabel" for="15m">15m</label>
+        </div>
+        <div>
+            <input class="bandInput"  type="radio" id="10m" name="band" value="10m">
+            <label class="bandLabel" for="10m">10m</label>
+        </div>
+        <div>
+            <input class="bandInput"  type="radio" id="2m" name="band" value="2m">
+            <label class="bandLabel" for="2m">2m</label>
+        </div>
+        <div>
+            <input class="bandInput"  type="radio" id="07m" name="band" value="07m">
+            <label class="bandLabel" for="07m">0,7m</label>
+        </div>
+    </div>
+
     <div class="bandSweepWrapper">
         <button class="bandSweepButton">Band Sweep</button>
     </div>
+
 </div>
 
 
@@ -79,12 +104,11 @@
 <div class="utilWrapper sectionWrapper">
     <button class="timeButton">Sync Time</button>
 
-    <div class="powerWrapper">
-        <p class="powerSelector">Select TX power:</p>
+    <p class="powerSelector">Select TX power:</p>
 
+    <div class="powerWrapper">
         <div>
-            <input class="powerInput" type="radio" id="2ma" name="power" value="2"
-                   checked>
+            <input class="powerInput" type="radio" id="2ma" name="power" value="2" checked>
             <label class="powerLabel" for="2ma">2ma</label>
         </div>
 
