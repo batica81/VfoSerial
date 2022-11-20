@@ -35,6 +35,18 @@ let swrChart = new Chart(document.getElementById("line-chart"), {
     title: {
       display: true,
       text: 'SWR on the selected band'
+    },
+    scales: {
+      // xAxis: {
+      //   // The axis for this scale is determined from the first letter of the id as `'x'`
+      //   // It is recommended to specify `position` and / or `axis` explicitly.
+      //   type: 'time',
+      // },
+      y: {
+        // suggestedMin: 1,
+        limit: 10,
+        step: 1
+      }
     }
   }
 });

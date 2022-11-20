@@ -1,2 +1,1 @@
-run "node server.js"
-
+node server.js
