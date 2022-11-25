@@ -1,34 +1,34 @@
 let oscillator
-let isContinous = false
+let isContinuous = false
 let statusLines = 500
 let currentFrequency = 0
 let wsprCounter = 1
 let swrData = []
 let timeout
 
-let bandPlan =[
-  {'bnadName': 'snd', "bandStart" : 500, "bandStop" : 5000},
-  {'bnadName': '160m', "bandStart" : 1810000, "bandStop" : 2000000},
-  {'bnadName': '80m', "bandStart" : 3500000, "bandStop" : 3890000},
-  {'bnadName': '40m', "bandStart" : 7000000, "bandStop" : 7200000},
-  {'bnadName': '20m', "bandStart" : 14000000, "bandStop" : 14350000},
-  {'bnadName': '15m', "bandStart" : 21000000, "bandStop" : 21450000},
-  {'bnadName': '10m', "bandStart" : 28000000, "bandStop" : 29700000},
-  {'bnadName': '2m', "bandStart" : 144000000, "bandStop" : 146000000},
-  {'bnadName': '07m', "bandStart" : 432000000, "bandStop" : 438000000},
+const bandPlan = [
+  { bandName: 'snd', bandStart: 500, bandStop: 5000 },
+  { bandName: '160m', bandStart: 1810000, bandStop: 2000000 },
+  { bandName: '80m', bandStart: 3500000, bandStop: 3890000 },
+  { bandName: '40m', bandStart: 7000000, bandStop: 7200000 },
+  { bandName: '20m', bandStart: 14000000, bandStop: 14350000 },
+  { bandName: '15m', bandStart: 21000000, bandStop: 21450000 },
+  { bandName: '10m', bandStart: 28000000, bandStop: 29700000 },
+  { bandName: '2m', bandStart: 144000000, bandStop: 146000000 },
+  { bandName: '07m', bandStart: 432000000, bandStop: 438000000 }
 ]
 
 // Chart for swr
-let swrChart = new Chart(document.getElementById("line-chart"), {
+const swrChart = new Chart(document.getElementById('line-chart'), {
   type: 'line',
   data: {
-    labels: [1500,1600,1700,1750,1800,1850,1900,1950,1999,2050],
+    labels: [1500, 1600, 1700, 1750, 1800, 1850, 1900, 1950, 1999, 2050],
     datasets: [{
-        data: [86,114,106,106,107,111,133,221,783,2478],
-        label: "SWR",
-        borderColor: "#3e95cd",
-        fill: false
-      }
+      data: [86, 114, 106, 106, 107, 111, 133, 221, 783, 2478],
+      label: 'SWR',
+      borderColor: '#3e95cd',
+      fill: false
+    }
     ]
   },
   options: {
@@ -49,10 +49,10 @@ let swrChart = new Chart(document.getElementById("line-chart"), {
       }
     }
   }
-});
+})
 
 // 7 segment display
-let display = new SegmentDisplay('display')
+const display = new SegmentDisplay('display')
 display.pattern = '###.###.###'
 display.displayAngle = 10
 display.digitHeight = 20
@@ -119,7 +119,7 @@ function timeSynch () {
   return Math.floor(date / 1000)
 }
 
-function cwPlay() {
+function cwPlay () {
   socket.emit('socketMessage', '2,' + currentFrequency)
 
   // create Oscillator node for sidetone
@@ -135,11 +135,11 @@ function cwPlay() {
   }
 }
 
-function cwStop() {
-  if (!isContinous) {
+function cwStop () {
+  if (!isContinuous) {
     socket.emit('socketMessage', '2,' + 0)
   }
-  if (oscillator && !isContinous) {
+  if (oscillator && !isContinuous) {
     oscillator.stop()
   }
 }
@@ -211,14 +211,14 @@ function waitQuarterMinute (message) {
   }, timeToEven * 1000)
 }
 
-function logKey(e) {
-  if (e.code === "ControlRight") {
+function logKey (e) {
+  if (e.code === 'ControlRight') {
     cwPlay()
   }
 }
 
-function logKeyUp(e) {
-  if (e.code === "ControlRight") {
+function logKeyUp (e) {
+  if (e.code === 'ControlRight') {
     cwStop()
   }
 }
@@ -233,48 +233,48 @@ function getCodes (textMessage) {
     },
     body: JSON.stringify({ textMessage: textMessage })
   })
-      .then(response => response.json())
-      .then(data => {
-        console.log(data)
-        waitQuarterMinute(data.calculated)
-      })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+      waitQuarterMinute(data.calculated)
+    })
 }
 
 function doBandSweep (bandName) {
   swrData = []
-  let l = bandPlan.find(b => {return b.bnadName === bandName})
-  let scanStep = Math.trunc((l.bandStop-l.bandStart) / 101)
-  let interval = 60; // how much time should the delay between two iterations be (in milliseconds)?
-  let promise = Promise.resolve();
+  const l = bandPlan.find(b => { return b.bandName === bandName })
+  const scanStep = Math.trunc((l.bandStop - l.bandStart) / 101)
+  const interval = 60 // how much time should the delay between two iterations be (in milliseconds)?
+  let promise = Promise.resolve()
 
-  for (let i = l.bandStart; i <= l.bandStop; i = i + scanStep ) {
+  for (let i = l.bandStart; i <= l.bandStop; i = i + scanStep) {
     promise = promise.then(function () {
-      console.log(i);
+      console.log(i)
       currentFreq.innerHTML = i
       updateFreq(i.toString())
       socket.emit('socketMessage', '2,' + i)
 
       return new Promise(function (resolve) {
-        setTimeout(resolve, interval);
-      });
-    });
+        setTimeout(resolve, interval)
+      })
+    })
   }
 
   promise.then(function () {
-    console.log('Loop finished.');
+    console.log('Loop finished.')
     socket.emit('socketMessage', '2,' + 0)
     if (oscillator) {
       oscillator.stop()
     }
-    let freqs = Object.keys(swrData).map(key => (swrData[key]['freq'] ));
-    let swr = Object.keys(swrData).map(key => (swrData[key]['swr'] ));
-    swrChart.data.labels = freqs;
-    swrChart.options.title.text = 'SWR on the ' + bandName + ' band';
-    swrChart.data.datasets[0].data = swr;
-    swrChart.update();
+    const freqs = Object.keys(swrData).map(key => (swrData[key].freq))
+    const swr = Object.keys(swrData).map(key => (swrData[key].swr))
+    swrChart.data.labels = freqs
+    swrChart.options.title.text = 'SWR on the ' + bandName + ' band'
+    swrChart.data.datasets[0].data = swr
+    swrChart.update()
     console.log('STOP sent')
     writeMessageToScreen('STOP Sent')
-  });
+  })
 }
 
 function updateFreq (freq) {
@@ -291,13 +291,13 @@ function updateFreq (freq) {
   display.setValue(tmpFreq2)
 }
 
-socket.on('socketMessage',function (msg) {
+socket.on('socketMessage', function (msg) {
   writeMessageToScreen(msg)
 })
 
-document.addEventListener('keydown', logKey);
+document.addEventListener('keydown', logKey)
 
-document.addEventListener('keyup', logKeyUp);
+document.addEventListener('keyup', logKeyUp)
 
 setFrequencyButton.addEventListener('click', function () {
   if (MorseJs.empty) {
@@ -314,7 +314,7 @@ setFrequencyButton.addEventListener('click', function () {
   // MorseJs.Play("cq cq de n5jlc k", 20, 500);
 })
 
-bandSweepButton.addEventListener('click', function (){
+bandSweepButton.addEventListener('click', function () {
   doBandSweep(document.querySelector('input[name="band"]:checked').value)
 })
 
@@ -327,21 +327,21 @@ freqSlider.addEventListener('input', function () {
   updateFreq(this.value.toString())
   socket.emit('socketMessage', '2,' + this.value)
 })
-freqSlider.addEventListener('mouseup', function (){
+freqSlider.addEventListener('mouseup', function () {
   socket.emit('socketMessage', '2,' + 0)
   if (oscillator) {
     oscillator.stop()
   }
   console.log('STOP sent')
   writeMessageToScreen('STOP Sent')
-  let freqs = Object.keys(swrData).map(key => (swrData[key]['freq'] ));
-  let swr = Object.keys(swrData).map(key => (swrData[key]['swr'] ));
-  swrChart.data.labels = freqs;
-  swrChart.options.title.text = 'SWR on the sweeped band';
-  swrChart.data.datasets[0].data = swr;
-  swrChart.update();
+  const freqs = Object.keys(swrData).map(key => (swrData[key].freq))
+  const swr = Object.keys(swrData).map(key => (swrData[key].swr))
+  swrChart.data.labels = freqs
+  swrChart.options.title.text = 'SWR on the sweeped band'
+  swrChart.data.datasets[0].data = swr
+  swrChart.update()
 })
-freqSlider.addEventListener('mousedown', function (){
+freqSlider.addEventListener('mousedown', function () {
   swrData = []
 })
 
@@ -370,10 +370,10 @@ cwArea.addEventListener('mousedown', cwPlay)
 
 cwArea.addEventListener('mouseup', cwStop)
 
-clearStatusLog.addEventListener("click", (e) => statusLog.innerHTML = '')
+clearStatusLog.addEventListener('click', (e) => statusLog.innerHTML = '')
 
 continuousTX.addEventListener('change', function () {
-  isContinous = !isContinous
+  isContinuous = !isContinuous
 })
 
 timeButton.addEventListener('click', function () {
@@ -382,7 +382,8 @@ timeButton.addEventListener('click', function () {
   writeMessageToScreen('timeSynch sent')
 })
 
-powerInput.forEach(rb => { rb.addEventListener('change', function () {
+powerInput.forEach(rb => {
+  rb.addEventListener('change', function () {
     socket.emit('socketMessage', '3,' + this.value)
   })
 })

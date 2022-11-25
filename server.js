@@ -9,7 +9,7 @@ const { spawn, execSync} = require('child_process')
 app.use(express.static('public'))
 app.use(express.json());
 
-const appPort = 3000;
+const appPort = 3001;
 const baudRate = 115200
 const callsign = "YU4HAK"
 let mytail
