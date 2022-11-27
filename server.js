@@ -22,7 +22,7 @@ if (isWin) {
   // mytail = new Tail("/Users/Voja/AppData/Local/WSJT-X/test.txt")
 } else {
   // Linux:
-  // var SerialPortNumber = "/dev/ttyUSB0";
+  // SerialPortNumber = "/dev/ttyUSB0";
   SerialPortNumber = '/dev/ttyACM0'
   mytail = new Tail("/home/voja/.local/share/WSJT-X/ALL.TXT")
   // mytail = new Tail("/home/voja/.local/share/WSJT-X/test.txt")

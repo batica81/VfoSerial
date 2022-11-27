@@ -71,7 +71,7 @@ form button {
     color: darkmagenta;
 }
 
-.timeButton, .sendMessageButton, .sendWsprButton, .bandSweepButton {
+.appButton {
     font-size: 30px;
     font-weight: 700;
     padding: 5px;
@@ -79,16 +79,13 @@ form button {
     color: #68cfe2;
 }
 
-.center{
-    text-align: center;
+.morseMessage {
+    font-size: 25px;
+
 }
 
-.setFrequencyButton {
-    font-size: 37px;
-    font-weight: 700;
-    padding: 5px;
-    margin: 10px;
-    color: #42f3a6;
+.center{
+    text-align: center;
 }
 
 .currentFrequencyInput, .lowFreqLimit, .highFreqLimit, .sweepStep, .messageTextInput {
@@ -99,6 +96,14 @@ form button {
 
 .currentFreqWrapper {
     text-align: center;
+}
+
+.currentFreq {
+    display: none;
+}
+
+.morseMessage {
+    margin: 10px;
 }
 
 .cwArea {
@@ -268,7 +273,7 @@ input.powerInput {
 .sectionWrapper {
     /*border: 1px solid #000;*/
     margin: 10px;
-    padding: 10px;
+    padding: 15px;
     box-shadow: rgba(0, 0, 0, 0.35) 0 5px 15px;
 }
 #jogdial {

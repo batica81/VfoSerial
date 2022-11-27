@@ -14,14 +14,14 @@
 </head>
 <body id="body">
 
-<div class="currentFreqWrapper sectionWrapper">
+<div class="sectionWrapper currentFreqWrapper">
     <canvas id="display" width="260" height="140">
         Your browser is unfortunately not supported.
     </canvas>
     <div class="currentFreq center">0</div>
 </div>
 
-<div class="freqWrapper sectionWrapper">
+<div class="sectionWrapper freqWrapper">
     <div class="cwArea">CW</div>
 
     <label class="container-checkbox" for="continuousTX"> Continuous TX
@@ -35,11 +35,17 @@
         <label>
             <input class="currentFrequencyInput" type="text" value="7040100" placeholder="7040100">
         </label>
-        <button class="setFrequencyButton">Set Frequency</button>
+        <button class="appButton setFrequencyButton">Set Frequency</button>
     </div>
 </div>
 
-<div class="limitsWrapper sectionWrapper">
+<div class="sectionWrapper morseWrapper">
+    <label for="morseMessage">Enter text to send as Morse code</label>
+    <textarea id="morseMessage" name="morseMessage" class="morseMessage" rows="4" cols="50" placeholder="Enter message here..."></textarea>
+    <button class="appButton morseButton">Send message</button>
+</div>
+
+<div class="sectionWrapper limitsWrapper">
     <label for="lowFreqLimit">Start frequency</label>
     <input class="lowFreqLimit" name="lowFreqLimit" id="lowFreqLimit" type="text" value="6000000" placeholder="6000000">
 
@@ -93,18 +99,18 @@
     </div>
 
     <div class="bandSweepWrapper">
-        <button class="bandSweepButton">Band Sweep</button>
+        <button class="appButton bandSweepButton">Band Sweep</button>
     </div>
 
 </div>
 
 
-<div class="chartWrapper sectionWrapper">
+<div class="sectionWrapper chartWrapper">
     <canvas id="line-chart" width="800" height="450"></canvas>
 </div>
 
-<div class="utilWrapper sectionWrapper">
-    <button class="timeButton">Sync Time</button>
+<div class="sectionWrapper utilWrapper">
+    <button class="appButton timeButton">Sync Time</button>
 
     <p class="powerSelector">Select TX power:</p>
 
@@ -131,13 +137,13 @@
     </div>
 </div>
 
-<div class="messageWrapper sectionWrapper">
+<div class="sectionWrapper messageWrapper">
 
     <div class="messageTextWrapper">
         <label class="messageLabel" for="messageTextInput">Text message</label>
         <input class="messageTextInput" id="messageTextInput" type="text" value="CQ YU4HAK KN04" placeholder="message">
-        <button class="sendMessageButton">Send FT8 Message</button>
-        <button class="sendWsprButton">Send WSPR Message</button>
+        <button class="appButton sendMessageButton">Send FT8 Message</button>
+        <button class="appButton sendWsprButton">Send WSPR Message</button>
         <label class="messageLabel" for="wsprCyclesCount">WSPR Cycles</label>
         <input class="wsprCyclesCount" id="wsprCyclesCount" type="number" value="1" min="1" placeholder="1">
     </div>
@@ -145,8 +151,8 @@
 </div>
 
 
-<div class="statusWrapper sectionWrapper">
-    <button class="clearStatusLog">Clear Status Log</button>
+<div class="sectionWrapper statusWrapper">
+    <button class="appButton clearStatusLog">Clear Status Log</button>
 <!--    <div class="statusMessage center">...</div>-->
     <ul id="messages"></ul>
 </div>

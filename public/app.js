@@ -87,6 +87,8 @@ const timeButton = document.querySelector('.timeButton')
 const freqSlider = document.querySelector('.freqSlider')
 const statusLog = document.querySelector('#messages')
 const clearStatusLog = document.querySelector('.clearStatusLog')
+const morseButton = document.querySelector('.morseButton')
+const morseMessage = document.querySelector('.morseMessage')
 const powerInput = document.querySelectorAll('input[name=power]')
 
 // autoNumeric with the defaults options
@@ -110,6 +112,14 @@ new AutoNumeric(sweepStep, {
   digitGroupSeparator: '.',
   allowDecimalPadding: false
 })
+
+function sendMorseMessage () {
+  let message = morseMessage.value
+  MorseJs.Play(message, 20, 800);
+
+  // todo: add wpm selector
+  // todo: connect to actual keyer
+}
 
 function timeSynch () {
   let date = new Date()
@@ -225,7 +235,7 @@ function logKeyUp (e) {
 
 function getCodes (textMessage) {
   //   fetch('http://192.168.1.20:3070/', {  // external api
-  fetch('http://localhost:3000/getcodes', {
+  fetch('http://localhost:3001/getcodes', {
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -305,13 +315,9 @@ setFrequencyButton.addEventListener('click', function () {
   }
   currentFreq.innerHTML = currentFrequencyInput.value.toString()
   updateFreq(currentFrequencyInput.value.toString())
-
   currentFrequency = currentFrequencyInput.value.toString().replaceAll('.', '')
-
   socket.emit('socketMessage', '6,' + currentFrequency)
   console.log(currentFrequency)
-
-  // MorseJs.Play("cq cq de n5jlc k", 20, 500);
 })
 
 bandSweepButton.addEventListener('click', function () {
@@ -365,6 +371,8 @@ sendWsprButton.addEventListener('click', function () {
   wsprCounter = parseInt(document.querySelector('.wsprCyclesCount').value)
   waitEvenMinute()
 })
+
+morseButton.addEventListener('click', sendMorseMessage)
 
 cwArea.addEventListener('mousedown', cwPlay)
 
