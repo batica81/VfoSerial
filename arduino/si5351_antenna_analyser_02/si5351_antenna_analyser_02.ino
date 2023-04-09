@@ -1,31 +1,24 @@
 #include "si5351.h"
-// #include "Wire.h"
-// #include "TimeLib.h"
-#include <JTEncode.h>
-// #include <rs_common.h>
-// #include <int.h>
-//#include <string.h>
-
+#include "TimeLib.h"
 
 #define WSPR_TONE_SPACING       146          // ~1.46 Hz
 #define WSPR_DELAY              683          // Delay value for WSPR
 #define WSPR_DEFAULT_FREQ       7039950UL
+#define WSPR_SYMBOL_COUNT       162
 
 #define FT8_TONE_SPACING        625          // ~6.25 Hz
 #define FT8_DELAY               159          // Delay value for FT8
 #define FT8_DEFAULT_FREQ        7075000UL
-
-#define DEFAULT_MODE            MODE_WSPR
+#define FT8_SYMBOL_COUNT        79
 
 #define ledPin                 13
 
 #define rxPin                 8
-
-enum mode {MODE_WSPR, MODE_FT8};
+#define rxSwitch              2
+#define rxLed                 12
 
 // Class instantiation
 Si5351 si5351(0x60);
-JTEncode jtencode;
 
 // Global variables
 unsigned long freq;
@@ -33,13 +26,10 @@ char message[] = "CQ YU4HAK KN04";
 char call[] = "YU4HAK";
 char loc[] = "KN04";
 uint8_t dbm = 10; // 10dbm equals to 10mW, values are NOT arbitrary,check WSPR manual!
-//uint8_t tx_buffer[255];  // too much for arduino!!!
+// uint8_t tx_buffer[255];  // maybe too much for arduino!!!
 uint8_t tx_buffer[180];
-// uint8_t tx_buffer[79];
-enum mode cur_mode = DEFAULT_MODE;
 uint8_t symbol_count;
 uint16_t tone_delay, tone_spacing;
-
 
 bool timeWasSet = false;
 
@@ -55,47 +45,33 @@ void setup() {
   pinMode(rxPin, OUTPUT);
   digitalWrite(ledPin, LOW);
 
-  // Set the proper frequency, tone spacing, symbol count, and
-  // tone delay depending on mode
-  switch (cur_mode) {
-    case MODE_WSPR:
-      freq = WSPR_DEFAULT_FREQ;
-      symbol_count = WSPR_SYMBOL_COUNT; // From the library defines
-      tone_spacing = WSPR_TONE_SPACING;
-      tone_delay = WSPR_DELAY;
-      break;
-    case MODE_FT8:
-      freq = FT8_DEFAULT_FREQ;
-      symbol_count = FT8_SYMBOL_COUNT; // From the library defines
-      tone_spacing = FT8_TONE_SPACING;
-      tone_delay = FT8_DELAY;
-      break;
-  }
+  pinMode(rxLed, OUTPUT);
+  digitalWrite(rxLed, LOW);
 
-
-  // Encode the message in the transmit buffer
-  // This is RAM intensive and should be done separately from other subroutines
-  set_tx_buffer();
+  pinMode(rxSwitch, INPUT);
 
   pinMode(A0, INPUT); // FWD
   pinMode(A1, INPUT);  // REV
+
   Serial.begin(115200);
   Serial.setTimeout(5);
 
-  if (si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25002152, 0)) { //Miletova kalibracija
-    // Serial.println(F("SI5351 found, enabling clk0 for TX"));
+//   if (si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25002152, 0)) { // Calibration
+  if (si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25000000, 0)) { // Calibration
+    si5351.set_correction(122200, SI5351_PLL_INPUT_XO);
+    Serial.println(F("SI5351 found, enabling clk0 for TX"));
     si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_8MA); // Set for max power if desired  OPTIONS: 2 4 6 8 (MA)
     si5351.output_enable(SI5351_CLK0, 0); // Disable the clock initially
 
-    // Serial.println(F("SI5351 found, enabling clk1 for RX"));
+    Serial.println(F("SI5351 found, enabling clk1 for RX"));
     si5351.drive_strength(SI5351_CLK1, SI5351_DRIVE_2MA); // Set for max power if desired  OPTIONS: 2 4 6 8 (MA)
     si5351.output_enable(SI5351_CLK1, 0); // Disable the clock initially
   }
   else {
-    // Serial.println(F("SI5351 not found"));
+    Serial.println(F("SI5351 not found"));
   }
 
-  // Serial.println(F("Arduino is ready."));
+  Serial.println(F("Arduino is ready."));
 }
 
 void loop() {
@@ -129,26 +105,27 @@ void updateFrequency() {
         break;
 
       case 4: // Set time
-        // setTime(command.toInt());
+        setTime(command.toInt());
         timeWasSet = true;
-        // digitalClockDisplay();
+        digitalClockDisplay();
         break;
 
       case 5: // Get time
-        // digitalClockDisplay();
+        digitalClockDisplay();
         break;
 
-      case 7: // Send WSPR message
-//        assume cur_mode = MODE_WSPR;
+      case 7: // Send WSPR PRECALCULATED message
         //todo: change mode and presets with a function !
 
         freq = WSPR_DEFAULT_FREQ;
         symbol_count = WSPR_SYMBOL_COUNT; // From the library defines
         tone_spacing = WSPR_TONE_SPACING;
         tone_delay = WSPR_DELAY;
-
-        // Serial.println("Sending predefined WSPR message.");
-        encode();
+//         for(int i=0;i<command.length();i++){
+//             tx_buffer[i] = command[i];
+//         }
+        Serial.println("Sending predefined WSPR message. DISABLED");
+//         encode();
         break;
 
       case 8: // Send FT8 PRECALCULATED message
@@ -181,20 +158,20 @@ void updateFrequency() {
 void toggleRX(uint32_t rx) {
   if ( (1 < rx) && (rx < 200000001) ) {
       digitalWrite(rxPin, HIGH);
+      digitalWrite(rxLed, HIGH);
       si5351.set_freq(rx * SI5351_FREQ_MULT, SI5351_CLK1);
       si5351.output_enable(SI5351_CLK1, 1);
   }
   if (rx == 0) {
       digitalWrite(rxPin, LOW);
-      si5351.output_enable(SI5351_CLK1, 0);    
+      digitalWrite(rxLed, LOW);
+      si5351.output_enable(SI5351_CLK1, 0);
   }
-    
 }
-
 
 void waitTimeslot(){
   int toNext;
-  // second();
+  second();
   delay(toNext * 1000);
 }
 
@@ -224,39 +201,39 @@ void setPowerLevel(int level) {
   switch (level) {
     case 2:
       si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_2MA);
-      // Serial.println("TX Power set to 2MA");
+      Serial.println("TX Power set to 2MA");
       break;
 
     case 4:
       si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_4MA);
-      // Serial.println("TX Power set to 4MA");
+      Serial.println("TX Power set to 4MA");
       break;
 
     case 6:
       si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_6MA);
-      // Serial.println("TX Power set to 6MA");
+      Serial.println("TX Power set to 6MA");
       break;
 
     case 8:
       si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_8MA);
-      // Serial.println("TX Power set to 8MA");
+      Serial.println("TX Power set to 8MA");
       break;
   }
 }
 
-// void digitalClockDisplay() {
-//   // digital clock display of the time
-//   Serial.print(hour());
-//   printDigits(minute());
-//   printDigits(second());
-//   Serial.print(" ");
-//   Serial.print(day());
-//   Serial.print(" ");
-//   Serial.print(month());
-//   Serial.print(" ");
-//   Serial.print(year());
-//   Serial.println();
-// }
+void digitalClockDisplay() {
+  // digital clock display of the time
+  Serial.print(hour());
+  printDigits(minute());
+  printDigits(second());
+  Serial.print(" ");
+  Serial.print(day());
+  Serial.print(" ");
+  Serial.print(month());
+  Serial.print(" ");
+  Serial.print(year());
+  Serial.println();
+}
 
 void printDigits(int digits) {
   // utility function for digital clock display: prints preceding colon and leading 0
@@ -265,7 +242,6 @@ void printDigits(int digits) {
     Serial.print('0');
   Serial.print(digits);
 }
-
 
 // Loop through the string, transmitting one character at a time.
 void encode() {
@@ -284,19 +260,4 @@ void encode() {
   // Turn off the output
   si5351.output_enable(SI5351_CLK0, 0);
   digitalWrite(ledPin, LOW);
-}
-
-void set_tx_buffer() {
-  // Clear out the transmit buffer
-  memset(tx_buffer, 0, 255);
-
-  // Set the proper frequency and timer CTC depending on mode
-  switch (cur_mode) {
-    case MODE_WSPR:
-      jtencode.wspr_encode(call, loc, dbm, tx_buffer);
-      break;
-    case MODE_FT8:
-      jtencode.ft8_encode(message, tx_buffer);
-      break;
-  }
 }
