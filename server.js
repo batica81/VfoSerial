@@ -17,7 +17,7 @@ let SerialPortNumber
 
 if (isWin) {
   // Windows:
-  SerialPortNumber = 'COM12'
+  SerialPortNumber = 'COM9'
   mytail = new Tail("/Users/Voja/AppData/Local/WSJT-X/ALL.TXT")
   // mytail = new Tail("/Users/Voja/AppData/Local/WSJT-X/test.txt")
 } else {

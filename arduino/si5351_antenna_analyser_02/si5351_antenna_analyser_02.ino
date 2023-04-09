@@ -1,10 +1,10 @@
 #include "si5351.h"
-#include "Wire.h"
-#include "TimeLib.h"
+// #include "Wire.h"
+// #include "TimeLib.h"
 #include <JTEncode.h>
-#include <rs_common.h>
-#include <int.h>
-#include <string.h>
+// #include <rs_common.h>
+// #include <int.h>
+//#include <string.h>
 
 
 #define WSPR_TONE_SPACING       146          // ~1.46 Hz
@@ -18,6 +18,8 @@
 #define DEFAULT_MODE            MODE_WSPR
 
 #define ledPin                 13
+
+#define rxPin                 8
 
 enum mode {MODE_WSPR, MODE_FT8};
 
@@ -50,6 +52,9 @@ void setup() {
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin, LOW);
 
+  pinMode(rxPin, OUTPUT);
+  digitalWrite(ledPin, LOW);
+
   // Set the proper frequency, tone spacing, symbol count, and
   // tone delay depending on mode
   switch (cur_mode) {
@@ -77,16 +82,20 @@ void setup() {
   Serial.begin(115200);
   Serial.setTimeout(5);
 
-  if (si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25000000, 0)) { //Miletova kalibracija
-    Serial.println("SI5351 found, enabling clk0");
+  if (si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25002152, 0)) { //Miletova kalibracija
+    // Serial.println(F("SI5351 found, enabling clk0 for TX"));
     si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_8MA); // Set for max power if desired  OPTIONS: 2 4 6 8 (MA)
     si5351.output_enable(SI5351_CLK0, 0); // Disable the clock initially
+
+    // Serial.println(F("SI5351 found, enabling clk1 for RX"));
+    si5351.drive_strength(SI5351_CLK1, SI5351_DRIVE_2MA); // Set for max power if desired  OPTIONS: 2 4 6 8 (MA)
+    si5351.output_enable(SI5351_CLK1, 0); // Disable the clock initially
   }
   else {
-    Serial.println("SI5351 not found");
+    // Serial.println(F("SI5351 not found"));
   }
 
-  Serial.println("Arduino is ready.");
+  // Serial.println(F("Arduino is ready."));
 }
 
 void loop() {
@@ -95,7 +104,7 @@ void loop() {
 
 void updateFrequency() {
   String sdata;
-  int modeSelector;
+  uint8_t modeSelector;
   String command;
 
   while (Serial.available() ) {
@@ -120,13 +129,13 @@ void updateFrequency() {
         break;
 
       case 4: // Set time
-        setTime(command.toInt());
+        // setTime(command.toInt());
         timeWasSet = true;
-        digitalClockDisplay();
+        // digitalClockDisplay();
         break;
 
       case 5: // Get time
-        digitalClockDisplay();
+        // digitalClockDisplay();
         break;
 
       case 7: // Send WSPR message
@@ -138,7 +147,7 @@ void updateFrequency() {
         tone_spacing = WSPR_TONE_SPACING;
         tone_delay = WSPR_DELAY;
 
-        Serial.println("Sending predefined WSPR message.");
+        // Serial.println("Sending predefined WSPR message.");
         encode();
         break;
 
@@ -159,15 +168,33 @@ void updateFrequency() {
         encode();
         break;
 
+      case 9:
+        toggleRX(command.toInt());
+        break;
+
     } // end switch
   } //end while serial
 
   sdata = ""; // Clear the string ready for the next command.
 }
 
+void toggleRX(uint32_t rx) {
+  if ( (1 < rx) && (rx < 200000001) ) {
+      digitalWrite(rxPin, HIGH);
+      si5351.set_freq(rx * SI5351_FREQ_MULT, SI5351_CLK1);
+      si5351.output_enable(SI5351_CLK1, 1);
+  }
+  if (rx == 0) {
+      digitalWrite(rxPin, LOW);
+      si5351.output_enable(SI5351_CLK1, 0);    
+  }
+    
+}
+
+
 void waitTimeslot(){
   int toNext;
-  second();
+  // second();
   delay(toNext * 1000);
 }
 
@@ -197,39 +224,39 @@ void setPowerLevel(int level) {
   switch (level) {
     case 2:
       si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_2MA);
-      Serial.println("TX Power set to 2MA");
+      // Serial.println("TX Power set to 2MA");
       break;
 
     case 4:
       si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_4MA);
-      Serial.println("TX Power set to 4MA");
+      // Serial.println("TX Power set to 4MA");
       break;
 
     case 6:
       si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_6MA);
-      Serial.println("TX Power set to 6MA");
+      // Serial.println("TX Power set to 6MA");
       break;
 
     case 8:
       si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_8MA);
-      Serial.println("TX Power set to 8MA");
+      // Serial.println("TX Power set to 8MA");
       break;
   }
 }
 
-void digitalClockDisplay() {
-  // digital clock display of the time
-  Serial.print(hour());
-  printDigits(minute());
-  printDigits(second());
-  Serial.print(" ");
-  Serial.print(day());
-  Serial.print(" ");
-  Serial.print(month());
-  Serial.print(" ");
-  Serial.print(year());
-  Serial.println();
-}
+// void digitalClockDisplay() {
+//   // digital clock display of the time
+//   Serial.print(hour());
+//   printDigits(minute());
+//   printDigits(second());
+//   Serial.print(" ");
+//   Serial.print(day());
+//   Serial.print(" ");
+//   Serial.print(month());
+//   Serial.print(" ");
+//   Serial.print(year());
+//   Serial.println();
+// }
 
 void printDigits(int digits) {
   // utility function for digital clock display: prints preceding colon and leading 0

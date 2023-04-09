@@ -5,6 +5,7 @@ let currentFrequency = 0
 let wsprCounter = 1
 let swrData = []
 let timeout
+let rx = true
 
 const bandPlan = [
   { bandName: 'snd', bandStart: 500, bandStop: 5000 },
@@ -80,6 +81,7 @@ const highFreqLimit = document.querySelector('.highFreqLimit')
 const sweepStep = document.querySelector('.sweepStep')
 const bandSweepButton = document.querySelector('.bandSweepButton')
 const cwArea = document.querySelector('.cwArea')
+const rxButton = document.querySelector('.rxToggle')
 const stopButon = document.querySelector('.stopButon')
 const sendMessageButton = document.querySelector('.sendMessageButton')
 const sendWsprButton = document.querySelector('.sendWsprButton')
@@ -151,6 +153,17 @@ function cwStop () {
   }
   if (oscillator && !isContinuous) {
     oscillator.stop()
+  }
+}
+function rxToggle () {
+  if (rx) {
+    socket.emit('socketMessage', '9,' + currentFrequency)
+    rx = false;
+    console.log('RX enabled on: ' + currentFrequency)
+  } else {
+    socket.emit('socketMessage', '2,' + 0)
+    rx = true
+    console.log('RX disabled')
   }
 }
 
@@ -373,6 +386,8 @@ sendWsprButton.addEventListener('click', function () {
 })
 
 morseButton.addEventListener('click', sendMorseMessage)
+
+rxButton.addEventListener('click', rxToggle)
 
 cwArea.addEventListener('mousedown', cwPlay)
 

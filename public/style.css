@@ -81,7 +81,10 @@ form button {
 
 .morseMessage {
     font-size: 25px;
-
+    height: 100px;
+    width: 98%;
+    padding:1%;
+    border:none;
 }
 
 .center{
@@ -105,6 +108,10 @@ form button {
 .morseMessage {
     margin: 10px;
 }
+.ctrlButtons {
+    display: flex;
+    justify-content: space-between;
+}
 
 .cwArea {
     background-color: brown;
@@ -118,7 +125,19 @@ form button {
     font-weight: 700;
 }
 
-.cwArea:active {
+.rxToggle {
+    background-color: #1545bd;
+    display: flex;
+    width: 200px;
+    height: 200px;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.cwArea:active, .rxToggle:active {
     background-color: darkgray;
 }
 
