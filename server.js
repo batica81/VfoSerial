@@ -5,6 +5,7 @@ const io = require('socket.io')(http)
 const isWin = process.platform === 'win32'
 const Tail = require('tail-file');
 const { spawn, execSync} = require('child_process')
+require('dotenv').config()
 
 app.use(express.static('public'))
 app.use(express.json());
@@ -17,14 +18,13 @@ let SerialPortNumber
 
 if (isWin) {
   // Windows:
-  SerialPortNumber = 'COM9'
-  mytail = new Tail("/Users/Voja/AppData/Local/WSJT-X/ALL.TXT")
+  SerialPortNumber = process.env.WIN_SERIAL_PORT
+  mytail = new Tail(process.env.WIN_ALL_PATH)
   // mytail = new Tail("/Users/Voja/AppData/Local/WSJT-X/test.txt")
 } else {
   // Linux:
-  // SerialPortNumber = "/dev/ttyUSB0";
-  SerialPortNumber = '/dev/ttyACM0'
-  mytail = new Tail("/home/voja/.local/share/WSJT-X/ALL.TXT")
+  SerialPortNumber = process.env.LIN_SERIAL_PORT
+  mytail = new Tail(process.env.LIN_ALL_PATH)
   // mytail = new Tail("/home/voja/.local/share/WSJT-X/test.txt")
 }
 
