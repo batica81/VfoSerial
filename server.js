@@ -3,16 +3,16 @@ const app = express()
 const http = require('http').createServer(app)
 const io = require('socket.io')(http)
 const isWin = process.platform === 'win32'
-const Tail = require('tail-file');
-const { spawn, execSync} = require('child_process')
+const Tail = require('tail-file')
+const { spawn, execSync } = require('child_process')
 require('dotenv').config()
 
 app.use(express.static('public'))
-app.use(express.json());
+app.use(express.json())
 
-const appPort = 3001;
+const appPort = 3001
 const baudRate = 115200
-const callsign = "YU4HAK"
+const callsign = 'YU4HAK'
 let mytail
 let SerialPortNumber
 
@@ -33,9 +33,9 @@ app.get('/', (req, res) => {
 })
 
 app.post('/getcodes', (req, res) => {
-  let resText = giveCode("FT8", req.body.textMessage).toString();
-  let resObject = {}
-  resObject.calculated = resText;
+  const resText = giveCode('FT8', req.body.textMessage).toString()
+  const resObject = {}
+  resObject.calculated = resText
   res.send(JSON.stringify(resObject))
 })
 
@@ -59,36 +59,36 @@ function giveCode (protocol, textMessage) {
   if (isWin) {
     // Windows:
     const stdout = execSync('ft8code.exe "' + textMessage + '"')
-    parsedString = stdout.toString().trim().split('Sync')[3].replace(/\s+/g, '').trim();
+    parsedString = stdout.toString().trim().split('Sync')[3].replace(/\s+/g, '').trim()
   } else {
     // Linux:
     const stdout = execSync('./gen_ft8 "' + textMessage + '"' + " 01.wav | grep FSK | cut -d' ' -f3")
     parsedString = stdout.toString().trim()
   }
-  return parsedString;
+  return parsedString
 }
 
 mytail.on('line', line => {
-  let lineArray = line.split(" ").filter(word => word !== "");
-  let protocol = lineArray[3]
-  let messageArray = [lineArray[7], lineArray[8], lineArray[9]]
-  let messageString = messageArray.join(" ").trim()
+  const lineArray = line.split(' ').filter(word => word !== '')
+  const protocol = lineArray[3]
+  const messageArray = [lineArray[7], lineArray[8], lineArray[9]]
+  const messageString = messageArray.join(' ').trim()
   console.log('message: ', messageString)
 
-  if (lineArray[8] === callsign){
-    let calculatedLine = giveCode(protocol, messageString)
+  if (lineArray[8] === callsign) {
+    const calculatedLine = giveCode(protocol, messageString)
     console.log(calculatedLine)
-    io.emit('socketMessage', calculatedLine )
+    io.emit('socketMessage', calculatedLine)
 
-    port.write('8,'+ calculatedLine + '\n', function (err) {
+    port.write('8,' + calculatedLine + '\n', function (err) {
       if (err) {
         return console.log('Error on write: ', err.message)
       }
     })
   }
-} );
+})
 
-mytail.start();
+mytail.start()
 
 /// ////////serial
 

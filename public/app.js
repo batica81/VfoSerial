@@ -99,6 +99,7 @@ new AutoNumeric(currentFrequencyInput, {
   digitGroupSeparator: '.',
   allowDecimalPadding: false
 })
+// eslint-disable-next-line no-undef
 new AutoNumeric(lowFreqLimit, {
   decimalCharacter: ',',
   digitGroupSeparator: '.',
