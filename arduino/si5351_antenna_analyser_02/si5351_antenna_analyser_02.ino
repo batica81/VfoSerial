@@ -43,6 +43,8 @@ uint16_t tone_delay, tone_spacing;
 
 bool timeWasSet = false;
 
+unsigned long newFt8Freq = 7075000;
+
 unsigned long pctime;
 
 String sdata = ""; // Initialised to nothing.
@@ -82,7 +84,7 @@ void setup() {
   Serial.begin(115200);
   Serial.setTimeout(5);
 
-  if (si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25000000, 0)) { //Miletova kalibracija
+  if (si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25002152, 0)) { //Miletova kalibracija
     // Serial.println(F("SI5351 found, enabling clk0 for TX"));
     si5351.drive_strength(SI5351_CLK0, SI5351_DRIVE_8MA); // Set for max power if desired  OPTIONS: 2 4 6 8 (MA)
     si5351.output_enable(SI5351_CLK0, 0); // Disable the clock initially
@@ -138,6 +140,11 @@ void updateFrequency() {
         // digitalClockDisplay();
         break;
 
+      case 6: // Set frequency
+        // digitalClockDisplay();
+        newFt8Freq = (command.toInt() + 1000); // added 1khz offset todo: change to configurable
+        break;
+
       case 7: // Send WSPR message
 //        assume cur_mode = MODE_WSPR;
         //todo: change mode and presets with a function !
@@ -154,7 +161,8 @@ void updateFrequency() {
       case 8: // Send FT8 PRECALCULATED message
 
         //todo: change mode and presets with a function !
-        freq = FT8_DEFAULT_FREQ;
+//         freq = FT8_DEFAULT_FREQ;
+        freq = newFt8Freq;
         symbol_count = FT8_SYMBOL_COUNT; // From the library defines
         tone_spacing = FT8_TONE_SPACING;
         tone_delay = FT8_DELAY;
