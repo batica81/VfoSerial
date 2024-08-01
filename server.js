@@ -5,10 +5,26 @@ const io = require('socket.io')(http)
 const isWin = process.platform === 'win32'
 const Tail = require('tail-file')
 const { spawn, execSync } = require('child_process')
+const cors = require('cors')
+const allowedOrigins = ['*'];
 require('dotenv').config()
 
 app.use(express.static('public'))
+
 app.use(express.json())
+app.use(cors({
+  origin: function(origin, callback){
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+}));
 
 const appPort = 3001
 const baudRate = 115200
