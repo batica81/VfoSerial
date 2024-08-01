@@ -1,3 +1,5 @@
+import {encode, globalBuffer} from "/dist/index.js";
+
 let oscillator
 let isContinuous = false
 let statusLines = 500
@@ -116,6 +118,11 @@ new AutoNumeric(sweepStep, {
   allowDecimalPadding: false
 })
 
+async function getTonesFromWASM(message) {
+  let result = await encode(message, 1000);
+  return globalBuffer[globalBuffer.length - 1].split(',').map(m => String.fromCharCode(m)).join('').split(' ')[2]
+}
+
 function sendMorseMessage () {
   let message = morseMessage.value
   MorseJs.Play(message, 20, 800);
@@ -229,7 +236,7 @@ function waitQuarterMinute (message) {
   writeMessageToScreen('timeToEven ' + timeToEven.toString())
 
   timeout = setTimeout(function () {
-    console.log('Sending message')
+    console.log('Sending message', message)
     writeMessageToScreen('Sending FT8 message')
     socket.emit('socketMessage', '8,' + message)
   }, timeToEven * 1000)
@@ -249,7 +256,7 @@ function logKeyUp (e) {
 
 function getCodes (textMessage) {
   //   fetch('http://192.168.1.20:3070/', {  // external api
-  fetch('http://localhost:3001/getcodes', {
+  return fetch('http://localhost:3001/getcodes', {
     method: 'POST',
     headers: {
       Accept: 'application/json',
@@ -259,8 +266,7 @@ function getCodes (textMessage) {
   })
     .then(response => response.json())
     .then(data => {
-      console.log(data)
-      waitQuarterMinute(data.calculated)
+      return data;
     })
 }
 
@@ -378,7 +384,19 @@ stopButon.addEventListener('click', function () {
 
 sendMessageButton.addEventListener('click', function () {
   const message = document.querySelector('.messageTextInput').value.toUpperCase()
-  getCodes(message)
+
+  // Using internal api
+  // getCodes(message).then(data => {
+  //   // Use the fetched data here
+  //   console.log(data);
+  //   waitQuarterMinute(data.calculated)
+  // })
+
+  // Using WASM
+  getTonesFromWASM(message).then(data => {
+    waitQuarterMinute(data)
+  })
+
 })
 
 sendWsprButton.addEventListener('click', function () {
