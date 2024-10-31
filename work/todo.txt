@@ -1,18 +1,21 @@
 
-js precalc
+cw offset improvement
+
+fix rx button
+
+js precalc ft8 codes
 
 frequency calibration ???
 
 vfo knob
 
-morse message
+morse message real tx
 
-UIdesign
-responsive
+responsive UI design
 
 electron app
 
-android test / app
+android app
 
 -----------
 

@@ -4,6 +4,7 @@ let oscillator
 let isContinuous = false
 let statusLines = 500
 let currentFrequency = 0
+let txOffset = 0
 let wsprCounter = 1
 let swrData = []
 let timeout
@@ -76,6 +77,8 @@ const socket = io()
 
 const setFrequencyButton = document.querySelector('.setFrequencyButton')
 const currentFrequencyInput = document.querySelector('.currentFrequencyInput')
+const txOffsetButton = document.querySelector('.txOffsetButton')
+const txOffsetInput = document.querySelector('.txOffsetInput')
 const continuousTX = document.querySelector('#continuousTX')
 const currentFreq = document.querySelector('.currentFreq')
 const lowFreqLimit = document.querySelector('.lowFreqLimit')
@@ -97,6 +100,12 @@ const powerInput = document.querySelectorAll('input[name=power]')
 
 // autoNumeric with the defaults options
 new AutoNumeric(currentFrequencyInput, {
+  decimalCharacter: ',',
+  digitGroupSeparator: '.',
+  allowDecimalPadding: false
+})
+// autoNumeric with the defaults options
+new AutoNumeric(txOffsetInput, {
   decimalCharacter: ',',
   digitGroupSeparator: '.',
   allowDecimalPadding: false
@@ -139,8 +148,11 @@ function timeSynch () {
   return Math.floor(date / 1000)
 }
 
-function cwPlay () {
-  socket.emit('socketMessage', '2,' + currentFrequency)
+function cwPlay (sidetone) {
+  sidetone = typeof sidetone === 'number' ? sidetone : 700
+  let numOffset = txOffset.toString().split('.').join("")
+
+  socket.emit('socketMessage', '2,' + (parseInt(currentFrequency) + parseInt(numOffset)))
 
   // create Oscillator node for sidetone
   if (currentFrequency < 96000) {
@@ -149,7 +161,15 @@ function cwPlay () {
     oscillator.frequency.setValueAtTime(currentFrequency, audioCtx.currentTime) // value in hertz
     oscillator.connect(audioCtx.destination)
     oscillator.start()
-  } else {
+  }
+  else if (currentFrequency > 96000) {
+    oscillator = audioCtx.createOscillator()
+    oscillator.type = 'sine'
+    oscillator.frequency.setValueAtTime(sidetone, audioCtx.currentTime) // value in hertz
+    oscillator.connect(audioCtx.destination)
+    oscillator.start()
+  }
+  else {
     console.log('Sidetone only up to 96khz')
     writeMessageToScreen('Sidetone only up to 96khz')
   }
@@ -243,13 +263,13 @@ function waitQuarterMinute (message) {
 }
 
 function logKey (e) {
-  if (e.code === 'ControlRight') {
-    cwPlay()
+  if (e.code === 'ControlRight' || e.code === 'KeyS') {
+    cwPlay(700)
   }
 }
 
 function logKeyUp (e) {
-  if (e.code === 'ControlRight') {
+  if (e.code === 'ControlRight' || e.code === 'KeyS') {
     cwStop()
   }
 }
@@ -338,6 +358,10 @@ setFrequencyButton.addEventListener('click', function () {
   currentFrequency = currentFrequencyInput.value.toString().replaceAll('.', '')
   socket.emit('socketMessage', '6,' + currentFrequency)
   console.log(currentFrequency)
+})
+
+txOffsetButton.addEventListener('click', function () {
+  txOffset =  txOffsetInput.value.toString()
 })
 
 bandSweepButton.addEventListener('click', function () {
