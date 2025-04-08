@@ -7,6 +7,8 @@ const Tail = require('tail-file')
 const { spawn, execSync } = require('child_process')
 const cors = require('cors')
 const allowedOrigins = ['*'];
+const { SerialPort } = require('serialport')
+const { ReadlineParser } = require('@serialport/parser-readline')
 require('dotenv').config()
 
 app.use(express.static('public'))
@@ -108,10 +110,14 @@ mytail.start()
 
 /// ////////serial
 
-const SerialPort = require('serialport')
-const Readline = SerialPort.parsers.Readline
 
-var port = new SerialPort(SerialPortNumber, {
+const Readline = ReadlineParser
+
+// const port = new SerialPort({ path: '/dev/ROBOT', baudRate: 14400 })
+
+
+var port = new SerialPort( {
+  path: SerialPortNumber,
   baudRate: baudRate
 },
 function (err) {
